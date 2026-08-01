@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corvid Sight — see through a crow's eye</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap');
+
+  :root{
+    --ink: #0a0c10;
+    --panel: #12151b;
+    --feather-blue: #3e4c8a;
+    --feather-violet: #7c5cbf;
+    --uv: #9b6bff;
+    --eye-amber: #d4a017;
+    --paper: #e9e6df;
+    --paper-dim: #9a9890;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0; height:100%;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .frame{
+    position:relative;
+    height:100vh; height:100dvh;
+    display:flex; flex-direction:column;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    padding: 18px 20px 10px;
+    z-index: 10;
+    background: linear-gradient(to bottom, rgba(10,12,16,0.95), rgba(10,12,16,0));
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--eye-amber);
+    display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow .dot{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--eye-amber);
+    box-shadow: 0 0 8px var(--eye-amber);
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-style:italic;
+    font-size: clamp(22px, 6vw, 30px);
+    margin: 4px 0 0;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------- stage ---------- */
+  .stage{
+    position:relative;
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#000;
+    overflow:hidden;
+  }
+  video{ display:none; }
+  canvas{
+    width:100%; height:100%;
+    object-fit: cover;
+    display:block;
+  }
+
+  .divider{
+    position:absolute; top:0; bottom:0;
+    width:2px;
+    background: linear-gradient(to bottom, transparent, var(--uv), transparent);
+    box-shadow: 0 0 14px var(--uv);
+    left:50%;
+    pointer-events:none;
+    transition: opacity .3s;
+  }
+
+  .side-label{
+    position:absolute; top: 14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    padding: 5px 10px;
+    background: rgba(10,12,16,0.55);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(233,230,223,0.15);
+    border-radius: 999px;
+    pointer-events:none;
+  }
+  .side-label.left{ left:14px; color: var(--paper-dim); }
+  .side-label.right{ right:14px; color: var(--uv); border-color: rgba(155,107,255,0.35); }
+
+  .idle{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap: 16px;
+    text-align:center;
+    padding: 30px;
+  }
+  .idle p{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--paper-dim);
+    max-width: 320px;
+    line-height:1.6;
+  }
+  .feather-icon{
+    width: 48px; height: 48px;
+    opacity:0.8;
+  }
+
+  button.primary{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    background: var(--uv);
+    color: #0a0c10;
+    border: none;
+    padding: 13px 24px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  button.primary:active{ transform: scale(0.97); }
+
+  /* ---------- footer controls ---------- */
+  footer{
+    z-index: 10;
+    padding: 14px 16px calc(16px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgba(10,12,16,0.97), rgba(10,12,16,0.4) 70%, transparent);
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+
+  .controls-row{
+    display:flex;
+    gap: 8px;
+    align-items:center;
+  }
+
+  .mode-toggle{
+    flex:1;
+    display:flex;
+    background: var(--panel);
+    border: 1px solid rgba(233,230,223,0.1);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .mode-toggle button{
+    flex:1;
+    border:none;
+    background:transparent;
+    color: var(--paper-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding: 9px 6px;
+    border-radius: 999px;
+    cursor:pointer;
+    transition: all .25s;
+  }
+  .mode-toggle button.active{
+    background: var(--uv);
+    color: #0a0c10;
+    font-weight:500;
+  }
+
+  .icon-btn{
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(233,230,223,0.15);
+    background: var(--panel);
+    color: var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    font-size: 16px;
+  }
+
+  details{
+    font-family:'IBM Plex Mono', monospace;
+  }
+  summary{
+    font-size: 10px;
+    letter-spacing:.1em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    cursor: pointer;
+    list-style:none;
+    display:flex; align-items:center; gap:6px;
+  }
+  summary::-webkit-details-marker{ display:none; }
+  summary::before{
+    content: "▸";
+    color: var(--eye-amber);
+    transition: transform .2s;
+  }
+  details[open] summary::before{ transform: rotate(90deg); }
+
+  .facts{
+    padding-top: 10px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .fact{
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--paper-dim);
+  }
+  .fact b{
+    color: var(--paper);
+    display:block;
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size: 12.5px;
+    margin-bottom: 2px;
+  }
+
+  .hint{
+    font-size: 9.5px;
+    color: var(--paper-dim);
+    text-align:center;
+    opacity: 0.6;
+  }
+
+  @media (min-width: 700px){
+    .frame{ max-width: 480px; margin: 0 auto; box-shadow: 0 0 60px rgba(155,107,255,0.08); }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <header>
+    <div class="eyebrow"><span class="dot"></span> Corvus &middot; live optics</div>
+    <h1>Corvid Sight</h1>
+  </header>
+
+  <div class="stage" id="stage">
+    <video id="video" playsinline muted></video>
+    <canvas id="canvas"></canvas>
+    <div class="divider" id="divider" style="opacity:0;"></div>
+    <div class="side-label left" id="labelLeft" style="opacity:0;">You</div>
+    <div class="side-label right" id="labelRight" style="opacity:0;">Crow</div>
+
+    <div class="idle" id="idle">
+      <svg class="feather-icon" viewBox="0 0 24 24" fill="none" stroke="#d4a017" stroke-width="1.2">
+        <path d="M20 4c-6 0-14 4-14 14 0 0 8-2 10-8M12 14l8-8"/>
+      </svg>
+      <p>This app remaps your camera feed to approximate how a carrion crow's tetrachromatic, UV‑sensitive, motion‑tuned eyes process the same scene.</p>
+      <button class="primary" id="startBtn">Open camera</button>
+    </div>
+  </div>
+
+  <footer id="footer" style="display:none;">
+    <div class="controls-row">
+      <div class="mode-toggle">
+        <button id="modeSplit" class="active">Split</button>
+        <button id="modeCrow">Full crow</button>
+        <button id="modeHuman">Full human</button>
+      </div>
+      <button class="icon-btn" id="flipBtn" title="Flip camera">⟲</button>
+    </div>
+
+    <details>
+      <summary>Why it looks like this</summary>
+      <div class="facts">
+        <div class="fact"><b>Fourth cone</b>Crows are tetrachromats — a UV‑sensitive cone lets them see near‑ultraviolet, rendered here as violet bloom.</div>
+        <div class="fact"><b>Muted red</b>Corvid colour space leans blue/violet‑forward with weaker long‑wavelength (red) response, so warm tones are pulled down.</div>
+        <div class="fact"><b>Faster flicker fusion</b>Crows resolve motion at a higher rate than we do — moving edges are highlighted in cyan as things a crow would catch that we might miss.</div>
+        <div class="fact"><b>Wider field</b>Laterally set eyes give near‑panoramic view. The gentle edge‑darkening hints at that broader periphery.</div>
+      </div>
+    </details>
+    <div class="hint">Video is processed on‑device only — nothing is uploaded or stored.</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const stage = document.getElementById('stage');
+  const idle = document.getElementById('idle');
+  const footer = document.getElementById('footer');
+  const startBtn = document.getElementById('startBtn');
+  const flipBtn = document.getElementById('flipBtn');
+  const divider = document.getElementById('divider');
+  const labelLeft = document.getElementById('labelLeft');
+  const labelRight = document.getElementById('labelRight');
+  const modeBtns = {
+    split: document.getElementById('modeSplit'),
+    crow: document.getElementById('modeCrow'),
+    human: document.getElementById('modeHuman'),
+  };
+
+  let mode = 'split';
+  let facing = 'environment';
+  let stream = null;
+  let prevGray = null; // Uint8ClampedArray for motion detection
+  let rafId = null;
+
+  function setMode(m){
+    mode = m;
+    Object.keys(modeBtns).forEach(k => modeBtns[k].classList.toggle('active', k === m));
+    const showChrome = m === 'split';
+    divider.style.opacity = showChrome ? 1 : 0;
+    labelLeft.style.opacity = showChrome ? 1 : 0;
+    labelRight.style.opacity = showChrome ? 1 : 0;
+  }
+  modeBtns.split.onclick = () => setMode('split');
+  modeBtns.crow.onclick = () => setMode('crow');
+  modeBtns.human.onclick = () => setMode('human');
+
+  async function startCamera(){
+    try{
+      if(stream){ stream.getTracks().forEach(t => t.stop()); }
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: facing, width:{ideal:1280}, height:{ideal:960} },
+        audio: false
+      });
+      video.srcObject = stream;
+      await video.play();
+      idle.style.display = 'none';
+      footer.style.display = 'flex';
+      resizeCanvas();
+      prevGray = null;
+      if(!rafId) loop();
+    }catch(err){
+      idle.querySelector('p').textContent = 'Camera access was blocked or unavailable: ' + err.message;
+    }
+  }
+
+  startBtn.onclick = startCamera;
+  flipBtn.onclick = () => { facing = facing === 'environment' ? 'user' : 'environment'; startCamera(); };
+
+  function resizeCanvas(){
+    const rect = stage.getBoundingClientRect();
+    canvas.width = rect.width * (window.devicePixelRatio > 1 ? 1.2 : 1);
+    canvas.height = rect.height * (window.devicePixelRatio > 1 ? 1.2 : 1);
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  // draw video into canvas with object-fit: cover behaviour
+  function drawCoverFrame(targetCtx, dx, dw){
+    const vw = video.videoWidth, vh = video.videoHeight;
+    if(!vw) return;
+    const ch = canvas.height;
+    const scale = Math.max(dw / vw, ch / vh);
+    const sw = dw / scale, sh = ch / scale;
+    const sx = (vw - sw) / 2, sy = (vh - sh) / 2;
+    targetCtx.drawImage(video, sx, sy, sw, sh, dx, 0, dw, ch);
+  }
+
+  // core crow-vision pixel transform
+  function applyCrowVision(imageData, prevGrayRef, w, h){
+    const d = imageData.data;
+    const newGray = new Uint8ClampedArray(w*h);
+    const cx = w/2, cy = h/2;
+    const maxDist = Math.sqrt(cx*cx+cy*cy);
+
+    for(let i=0, p=0; i<d.length; i+=4, p++){
+      let r = d[i], g = d[i+1], b = d[i+2];
+
+      const gray = 0.299*r + 0.587*g + 0.114*b;
+      newGray[p] = gray;
+
+      // tetrachromacy / UV-lean colour remap:
+      // suppress long-wavelength red, boost blue-violet, push a UV-simulated violet channel
+      const uvBoost = Math.max(0, b - r) * 0.5 + gray * 0.12;
+      let nr = r * 0.55 + uvBoost * 0.25;
+      let ng = g * 0.85 + uvBoost * 0.15;
+      let nb = Math.min(255, b * 1.35 + uvBoost * 0.6 + 18);
+
+      // motion highlight (flicker-fusion simulation): compare to previous frame
+      if(prevGrayRef){
+        const diff = Math.abs(gray - prevGrayRef[p]);
+        if(diff > 14){
+          const boost = Math.min(1, diff/60);
+          nr = nr*(1-boost) + 30*boost;
+          ng = ng*(1-boost) + 220*boost;
+          nb = nb*(1-boost) + 255*boost;
+        }
+      }
+
+      // peripheral vignette hint (wide FOV → attention falls toward center-forward)
+      const px = p % w, py = (p / w) | 0;
+      const dist = Math.sqrt((px-cx)*(px-cx) + (py-cy)*(py-cy)) / maxDist;
+      const vig = 1 - Math.pow(dist, 3) * 0.35;
+
+      d[i]   = nr * vig;
+      d[i+1] = ng * vig;
+      d[i+2] = nb * vig;
+    }
+    return newGray;
+  }
+
+  let lastMode = null;
+
+  function loop(){
+    if(video.readyState >= 2 && video.videoWidth){
+      const w = canvas.width, h = canvas.height;
+
+      // reset motion-tracking buffer whenever mode or size changes,
+      // since the processed region's dimensions differ between modes
+      if(mode !== lastMode){ prevGray = null; lastMode = mode; }
+
+      ctx.clearRect(0,0,w,h);
+      drawCoverFrame(ctx, 0, w);
+
+      if(mode === 'human'){
+        // nothing further — raw feed only
+      } else if(mode === 'crow'){
+        const frame = ctx.getImageData(0,0,w,h);
+        prevGray = applyCrowVision(frame, prevGray, w, h);
+        ctx.putImageData(frame, 0, 0);
+      } else { // split — left half stays human, right half becomes crow
+        const half = Math.floor(w/2);
+        const rightW = w - half;
+        const rightFrame = ctx.getImageData(half, 0, rightW, h);
+        prevGray = applyCrowVision(rightFrame, prevGray, rightW, h);
+        ctx.putImageData(rightFrame, half, 0);
+      }
+    }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  // pause camera when tab hidden to save battery
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden && stream){ stream.getTracks().forEach(t=>t.enabled=false); }
+    else if(stream){ stream.getTracks().forEach(t=>t.enabled=true); }
+  });
+})();
+</script>
+</body>
+  </html>
+  
