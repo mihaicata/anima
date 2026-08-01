@@ -37,11 +37,37 @@
 
   /* ---------- header ---------- */
   header{
+    position: relative;
     padding: 18px 20px 10px;
     z-index: 10;
     background: linear-gradient(to bottom, rgba(10,12,16,0.95), rgba(10,12,16,0));
     pointer-events:none;
   }
+
+  .animal-picker{
+    position:absolute;
+    top: 16px; right: 18px;
+    pointer-events:auto;
+  }
+  .animal-picker select{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    background: var(--panel);
+    color: var(--paper);
+    border: 1px solid rgba(233,230,223,0.18);
+    border-radius: 999px;
+    padding: 8px 28px 8px 14px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%239a9890' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    background-size: 9px;
+  }
+  .animal-picker select:focus{ outline: 1px solid var(--uv); }
   .eyebrow{
     font-family:'IBM Plex Mono', monospace;
     font-size: 11px;
@@ -253,8 +279,15 @@
 <div class="frame">
 
   <header>
-    <div class="eyebrow"><span class="dot"></span> Corvus &middot; live optics</div>
-    <h1>Corvid Sight</h1>
+    <div class="eyebrow"><span class="dot"></span> <span id="genusLabel">Corvus</span> &middot; live optics</div>
+    <h1 id="pageTitle">Corvid Sight</h1>
+    <div class="animal-picker">
+      <select id="animalSelect" aria-label="Choose animal">
+        <option value="crow">Crow</option>
+        <option value="panther">Panther</option>
+        <option value="spider">Spider</option>
+      </select>
+    </div>
   </header>
 
   <div class="stage" id="stage">
@@ -268,7 +301,7 @@
       <svg class="feather-icon" viewBox="0 0 24 24" fill="none" stroke="#d4a017" stroke-width="1.2">
         <path d="M20 4c-6 0-14 4-14 14 0 0 8-2 10-8M12 14l8-8"/>
       </svg>
-      <p>This app remaps your camera feed to approximate how a carrion crow's tetrachromatic, UV‑sensitive, motion‑tuned eyes process the same scene.</p>
+      <p id="idleText">This app remaps your camera feed to approximate how a carrion crow's tetrachromatic, UV‑sensitive, motion‑tuned eyes process the same scene.</p>
       <button class="primary" id="startBtn">Open camera</button>
     </div>
   </div>
@@ -277,7 +310,7 @@
     <div class="controls-row">
       <div class="mode-toggle">
         <button id="modeSplit" class="active">Split</button>
-        <button id="modeCrow">Full crow</button>
+        <button id="modeFull">Full animal</button>
         <button id="modeHuman">Full human</button>
       </div>
       <button class="icon-btn" id="flipBtn" title="Flip camera">⟲</button>
@@ -285,12 +318,7 @@
 
     <details>
       <summary>Why it looks like this</summary>
-      <div class="facts">
-        <div class="fact"><b>Fourth cone</b>Crows are tetrachromats — a UV‑sensitive cone lets them see near‑ultraviolet, rendered here as violet bloom.</div>
-        <div class="fact"><b>Muted red</b>Corvid colour space leans blue/violet‑forward with weaker long‑wavelength (red) response, so warm tones are pulled down.</div>
-        <div class="fact"><b>Faster flicker fusion</b>Crows resolve motion at a higher rate than we do — moving edges are highlighted in cyan as things a crow would catch that we might miss.</div>
-        <div class="fact"><b>Wider field</b>Laterally set eyes give near‑panoramic view. The gentle edge‑darkening hints at that broader periphery.</div>
-      </div>
+      <div class="facts" id="facts"></div>
     </details>
     <div class="hint">Video is processed on‑device only — nothing is uploaded or stored.</div>
   </footer>
@@ -312,11 +340,56 @@
   const labelRight = document.getElementById('labelRight');
   const modeBtns = {
     split: document.getElementById('modeSplit'),
-    crow: document.getElementById('modeCrow'),
+    full: document.getElementById('modeFull'),
     human: document.getElementById('modeHuman'),
+  };
+  const animalSelect = document.getElementById('animalSelect');
+  const genusLabel = document.getElementById('genusLabel');
+  const pageTitle = document.getElementById('pageTitle');
+  const idleText = document.getElementById('idleText');
+  const factsEl = document.getElementById('facts');
+
+  const ANIMALS = {
+    crow: {
+      label: 'Crow',
+      genus: 'Corvus',
+      appTitle: 'Corvid Sight',
+      idle: "This app remaps your camera feed to approximate how a carrion crow's tetrachromatic, UV‑sensitive, motion‑tuned eyes process the same scene.",
+      facts: [
+        ['Fourth cone', 'Crows are tetrachromats — a UV‑sensitive cone lets them see near‑ultraviolet, rendered here as violet bloom.'],
+        ['Muted red', 'Corvid colour space leans blue/violet‑forward with weaker long‑wavelength (red) response, so warm tones are pulled down.'],
+        ['Faster flicker fusion', 'Crows resolve motion at a higher rate than we do — moving edges are highlighted in cyan as things a crow would catch that we might miss.'],
+        ['Wider field', 'Laterally set eyes give near‑panoramic view. The gentle edge‑darkening hints at that broader periphery.'],
+      ],
+    },
+    panther: {
+      label: 'Panther',
+      genus: 'Panthera',
+      appTitle: 'Panther Sight',
+      idle: "This app remaps your camera feed to approximate how a panther's rod‑dominant, low‑light‑amplifying, dichromatic eyes process the same scene.",
+      facts: [
+        ['Rod-dominant retina', 'Panthers pack far more rod cells than humans, amplifying dim light so shadows lift and detail survives after dark.'],
+        ['Dichromatic colour', 'With only two cone types, reds fade toward grey while blues and greens stay dominant.'],
+        ['Tapetum lucidum', 'A reflective layer behind the retina bounces light back through it — bright highlights bloom with an eye‑shine glow.'],
+        ['Ambush motion sense', 'Tuned for tracking movement in low light — shifting edges flash amber‑green as a big cat\'s gaze would catch them.'],
+      ],
+    },
+    spider: {
+      label: 'Spider',
+      genus: 'Araneae',
+      appTitle: 'Spider Sight',
+      idle: "This app remaps your camera feed to approximate how a jumping spider's many simple eyes — sharp centre, UV‑tinted, wide but blurry periphery — process the same scene.",
+      facts: [
+        ['Principal eyes', 'A forward pair gives sharp detail in a narrow foveal zone at the centre of view — everything else falls off in acuity.'],
+        ['Green–UV vision', 'Most spiders lack red‑sensitive receptors, seeing mostly in green and near‑ultraviolet, rendered here as a cool violet‑green tint.'],
+        ['Eight simple eyes', 'Not a compound eye — several simple lenses cover different fields, hinted at here by the faceted grid overlay.'],
+        ['Blurry periphery', 'Outside the principal gaze, resolution drops sharply, so the frame softens and desaturates toward its edges.'],
+      ],
+    },
   };
 
   let mode = 'split';
+  let animal = 'crow';
   let facing = 'environment';
   let stream = null;
   let prevGray = null; // Uint8ClampedArray for motion detection
@@ -331,8 +404,24 @@
     labelRight.style.opacity = showChrome ? 1 : 0;
   }
   modeBtns.split.onclick = () => setMode('split');
-  modeBtns.crow.onclick = () => setMode('crow');
+  modeBtns.full.onclick = () => setMode('full');
   modeBtns.human.onclick = () => setMode('human');
+
+  function setAnimal(key){
+    animal = key;
+    const info = ANIMALS[key];
+    genusLabel.textContent = info.genus;
+    pageTitle.textContent = info.appTitle;
+    document.title = info.appTitle + ' — see through a ' + info.label.toLowerCase() + "'s eye";
+    idleText.textContent = info.idle;
+    labelRight.textContent = info.label;
+    factsEl.innerHTML = info.facts.map(([t, d]) => `<div class="fact"><b>${t}</b>${d}</div>`).join('');
+    modeBtns.full.textContent = 'Full ' + info.label.toLowerCase();
+    prevGray = null; // filter response differs per animal — start clean
+  }
+  animalSelect.value = animal;
+  animalSelect.onchange = () => setAnimal(animalSelect.value);
+  setAnimal(animal);
 
   async function startCamera(){
     try{
@@ -374,7 +463,7 @@
     targetCtx.drawImage(video, sx, sy, sw, sh, dx, 0, dw, ch);
   }
 
-  // core crow-vision pixel transform
+  // crow: tetrachromatic / UV-lean colour remap + flicker-fusion motion highlight
   function applyCrowVision(imageData, prevGrayRef, w, h){
     const d = imageData.data;
     const newGray = new Uint8ClampedArray(w*h);
@@ -387,7 +476,6 @@
       const gray = 0.299*r + 0.587*g + 0.114*b;
       newGray[p] = gray;
 
-      // tetrachromacy / UV-lean colour remap:
       // suppress long-wavelength red, boost blue-violet, push a UV-simulated violet channel
       const uvBoost = Math.max(0, b - r) * 0.5 + gray * 0.12;
       let nr = r * 0.55 + uvBoost * 0.25;
@@ -417,30 +505,131 @@
     return newGray;
   }
 
+  // panther: rod-dominant low-light amplification, dichromatic desaturation, tapetum glow
+  function applyPantherVision(imageData, prevGrayRef, w, h){
+    const d = imageData.data;
+    const newGray = new Uint8ClampedArray(w*h);
+    const cx = w/2, cy = h/2;
+    const maxDist = Math.sqrt(cx*cx+cy*cy);
+
+    for(let i=0, p=0; i<d.length; i+=4, p++){
+      let r = d[i], g = d[i+1], b = d[i+2];
+
+      const gray = 0.299*r + 0.587*g + 0.114*b;
+      newGray[p] = gray;
+
+      // low-light amplification: brighten shadows via gamma lift
+      const amp = Math.pow(gray/255, 0.55) * 255;
+
+      // dichromatic, blue-green-forward colour with weak red, desaturated toward luminance
+      const satMix = 0.55;
+      let nr = (r*0.3 + amp*0.15) * (1-satMix) + amp*satMix;
+      let ng = (g*0.75 + amp*0.35) * (1-satMix) + amp*satMix*1.05;
+      let nb = (b*0.55 + amp*0.45) * (1-satMix) + amp*satMix*0.95;
+
+      // motion sensitivity of an ambush predator: flash amber-green on movement
+      if(prevGrayRef){
+        const diff = Math.abs(gray - prevGrayRef[p]);
+        if(diff > 12){
+          const boost = Math.min(1, diff/50);
+          nr = nr*(1-boost) + 40*boost;
+          ng = ng*(1-boost) + 200*boost;
+          nb = nb*(1-boost) + 80*boost;
+        }
+      }
+
+      // tapetum lucidum eye-shine glow on bright highlights
+      if(gray > 210){
+        ng = Math.min(255, ng*1.15 + 20);
+        nb = Math.min(255, nb*1.1 + 10);
+      }
+
+      const px = p % w, py = (p / w) | 0;
+      const dist = Math.sqrt((px-cx)*(px-cx) + (py-cy)*(py-cy)) / maxDist;
+      const vig = 1 - Math.pow(dist, 3) * 0.25;
+
+      d[i]   = nr * vig;
+      d[i+1] = ng * vig;
+      d[i+2] = nb * vig;
+    }
+    return newGray;
+  }
+
+  // spider: green/UV-forward dichromacy, sharp foveal centre, faceted-eye grid, blurry periphery
+  function applySpiderVision(imageData, prevGrayRef, w, h){
+    const d = imageData.data;
+    const newGray = new Uint8ClampedArray(w*h);
+    const cx = w/2, cy = h/2;
+    const maxDist = Math.sqrt(cx*cx+cy*cy);
+    const block = Math.max(4, Math.round(w/70));
+
+    for(let i=0, p=0; i<d.length; i+=4, p++){
+      let r = d[i], g = d[i+1], b = d[i+2];
+
+      const gray = 0.299*r + 0.587*g + 0.114*b;
+      newGray[p] = gray;
+
+      // green/UV-forward dichromacy, very weak red response
+      const uvBoost = Math.max(0, b - r) * 0.4 + gray * 0.1;
+      let nr = r * 0.25 + uvBoost * 0.2;
+      let ng = g * 1.05 + uvBoost * 0.2;
+      let nb = Math.min(255, b * 0.9 + uvBoost * 0.7 + 12);
+
+      const px = p % w, py = (p / w) | 0;
+      const dist = Math.sqrt((px-cx)*(px-cx) + (py-cy)*(py-cy)) / maxDist;
+
+      // acuity falls off sharply outside the principal-eye foveal zone
+      const acuityFall = dist > 0.28 ? Math.min(1, (dist-0.28)/0.5) : 0;
+      nr = nr*(1-acuityFall*0.5) + gray*(acuityFall*0.5);
+      ng = ng*(1-acuityFall*0.3) + gray*(acuityFall*0.3);
+
+      // faceted secondary-eye grid overlay
+      if(px % block === 0 || py % block === 0){
+        nr *= 0.82; ng *= 0.82; nb *= 0.82;
+      }
+
+      const vig = 1 - Math.pow(dist, 3) * 0.4;
+
+      d[i]   = nr * vig;
+      d[i+1] = ng * vig;
+      d[i+2] = nb * vig;
+    }
+    return newGray;
+  }
+
+  const VISION_FILTERS = {
+    crow: applyCrowVision,
+    panther: applyPantherVision,
+    spider: applySpiderVision,
+  };
+
   let lastMode = null;
+  let lastAnimal = null;
 
   function loop(){
     if(video.readyState >= 2 && video.videoWidth){
       const w = canvas.width, h = canvas.height;
 
-      // reset motion-tracking buffer whenever mode or size changes,
-      // since the processed region's dimensions differ between modes
-      if(mode !== lastMode){ prevGray = null; lastMode = mode; }
+      // reset motion-tracking buffer whenever mode/animal or size changes,
+      // since the processed region's dimensions or filter differ
+      if(mode !== lastMode || animal !== lastAnimal){ prevGray = null; lastMode = mode; lastAnimal = animal; }
+
+      const applyVision = VISION_FILTERS[animal];
 
       ctx.clearRect(0,0,w,h);
       drawCoverFrame(ctx, 0, w);
 
       if(mode === 'human'){
         // nothing further — raw feed only
-      } else if(mode === 'crow'){
+      } else if(mode === 'full'){
         const frame = ctx.getImageData(0,0,w,h);
-        prevGray = applyCrowVision(frame, prevGray, w, h);
+        prevGray = applyVision(frame, prevGray, w, h);
         ctx.putImageData(frame, 0, 0);
-      } else { // split — left half stays human, right half becomes crow
+      } else { // split — left half stays human, right half becomes the selected animal's vision
         const half = Math.floor(w/2);
         const rightW = w - half;
         const rightFrame = ctx.getImageData(half, 0, rightW, h);
-        prevGray = applyCrowVision(rightFrame, prevGray, rightW, h);
+        prevGray = applyVision(rightFrame, prevGray, rightW, h);
         ctx.putImageData(rightFrame, half, 0);
       }
     }
