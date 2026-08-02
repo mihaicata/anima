@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Corvid Sight — see through a crow's eye</title>
+<title>Anima — see through a crow's eye</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap');
 
@@ -280,7 +280,7 @@
 
   <header>
     <div class="eyebrow"><span class="dot"></span> <span id="genusLabel">Corvus</span> &middot; live optics</div>
-    <h1 id="pageTitle">Corvid Sight</h1>
+    <h1>Anima</h1>
     <div class="animal-picker">
       <select id="animalSelect" aria-label="Choose animal">
         <option value="crow">Crow</option>
@@ -362,7 +362,6 @@
   };
   const animalSelect = document.getElementById('animalSelect');
   const genusLabel = document.getElementById('genusLabel');
-  const pageTitle = document.getElementById('pageTitle');
   const idleText = document.getElementById('idleText');
   const factsEl = document.getElementById('facts');
 
@@ -370,7 +369,6 @@
     crow: {
       label: 'Crow',
       genus: 'Corvus',
-      appTitle: 'Corvid Sight',
       idle: "This app remaps your camera feed to approximate how a carrion crow's tetrachromatic, UV‑sensitive, motion‑tuned eyes process the same scene.",
       facts: [
         ['Fourth cone', 'Crows are tetrachromats — a UV‑sensitive cone lets them see near‑ultraviolet, rendered here as violet bloom.'],
@@ -382,7 +380,6 @@
     panther: {
       label: 'Panther',
       genus: 'Panthera',
-      appTitle: 'Panther Sight',
       idle: "This app remaps your camera feed to approximate how a panther's rod‑dominant, low‑light‑amplifying, dichromatic eyes process the same scene.",
       facts: [
         ['Rod-dominant retina', 'Panthers pack far more rod cells than humans, amplifying dim light so shadows lift and detail survives after dark.'],
@@ -394,7 +391,6 @@
     spider: {
       label: 'Spider',
       genus: 'Araneae',
-      appTitle: 'Spider Sight',
       idle: "This app remaps your camera feed to approximate how a jumping spider's many simple eyes — sharp centre, UV‑tinted, wide but blurry periphery — process the same scene.",
       facts: [
         ['Principal eyes', 'A forward pair gives sharp detail in a narrow foveal zone at the centre of view — everything else falls off in acuity.'],
@@ -406,7 +402,6 @@
     lizard: {
       label: 'Lizard',
       genus: 'Lacertilia',
-      appTitle: 'Lizard Sight',
       idle: "This app remaps your camera feed to approximate how a diurnal lizard's vivid, UV‑sensitive, tetrachromatic eyes process the same scene.",
       facts: [
         ['UV-tetrachromacy', 'Many lizards see into the near‑ultraviolet, useful for reading UV skin patches on rivals and mates — rendered here as a violet‑blue lift.'],
@@ -418,7 +413,6 @@
     shark: {
       label: 'Shark',
       genus: 'Selachimorpha',
-      appTitle: 'Shark Sight',
       idle: "This app remaps your camera feed to approximate how a shark's colour‑poor, contrast‑driven, electroreceptive eyes process the same scene.",
       facts: [
         ['Cone-monochromats', 'Most sharks appear to have only a single functional cone type — they likely see the world with little to no colour, in shades and contrast.'],
@@ -430,7 +424,6 @@
     dolphin: {
       label: 'Dolphin',
       genus: 'Delphinus',
-      appTitle: 'Dolphin Sight',
       idle: "This app remaps your camera feed to approximate how a dolphin's near‑monochromatic eyes, paired with echolocation, process the same scene.",
       facts: [
         ['Cone-monochromat', 'Dolphins lost their blue cone over evolutionary time, leaving one cone type — colour vision is very limited, so the image leans toward a single hue.'],
@@ -442,7 +435,6 @@
     eagle: {
       label: 'Eagle',
       genus: 'Aquila',
-      appTitle: 'Eagle Sight',
       idle: "This app remaps your camera feed to approximate how an eagle's razor‑sharp, UV‑tinted, tightly foveated eyes process the same scene.",
       facts: [
         ['Extreme acuity', 'Eagles resolve detail several times finer than human vision — the centre of frame gets a strong contrast boost to mimic that clarity.'],
@@ -454,7 +446,6 @@
     fish: {
       label: 'Fish',
       genus: 'Actinopterygii',
-      appTitle: 'Fish Sight',
       idle: "This app remaps your camera feed to approximate how a typical fish's wide‑set, blue‑green‑leaning, underwater‑adapted eyes process the same scene.",
       facts: [
         ['Underwater colour loss', 'Water absorbs red wavelengths within metres of the surface, so warm tones fade fast and blue‑green dominates.'],
@@ -466,7 +457,6 @@
     octopus: {
       label: 'Octopus',
       genus: 'Octopus',
-      appTitle: 'Octopus Sight',
       idle: "This app remaps your camera feed to approximate how an octopus's colour‑blind eyes, which parse hue through blur instead of cones, process the same scene.",
       facts: [
         ['True colourblindness', 'Octopuses have a single photoreceptor type — by conventional colour vision, they see only in shades of grey.'],
@@ -478,7 +468,6 @@
     whale: {
       label: 'Whale',
       genus: 'Cetacea',
-      appTitle: 'Whale Sight',
       idle: "This app remaps your camera feed to approximate how a whale's dim, blue‑shifted, near‑monochromatic eyes, aided by echolocation, process the same scene.",
       facts: [
         ['Cone-monochromat', 'Like dolphins, most whales retain a single functional cone type, so the world renders in a narrow band of blues.'],
@@ -490,7 +479,6 @@
     monkey: {
       label: 'Monkey',
       genus: 'Cercopithecus',
-      appTitle: 'Monkey Sight',
       idle: "This app remaps your camera feed to approximate how an Old World monkey's trichromatic, fruit‑tuned eyes process the same scene.",
       facts: [
         ['Trichromatic vision', 'Like humans, many monkeys have three cone types — colour discrimination is close to ours, slightly boosted here for reds and greens.'],
@@ -502,7 +490,6 @@
     snake: {
       label: 'Snake',
       genus: 'Serpentes',
-      appTitle: 'Snake Sight',
       idle: "This app remaps your camera feed to approximate how a pit viper's dim visible-light eyes, layered with infrared heat‑sensing, process the same scene.",
       facts: [
         ['Infrared pit organs', 'Pit vipers and some boas sense heat directly, building a thermal picture layered over normal sight — rendered as a false‑colour heat wash.'],
@@ -514,7 +501,6 @@
     rat: {
       label: 'Rat',
       genus: 'Rattus',
-      appTitle: 'Rat Sight',
       idle: "This app remaps your camera feed to approximate how a rat's rod‑dominant, UV‑tinted, wide‑field nocturnal eyes process the same scene.",
       facts: [
         ['Rod-dominant retina', 'Nocturnal rodents lean heavily on rod cells for low‑light sensitivity, at the cost of sharpness — shadows lift, detail softens.'],
@@ -526,7 +512,6 @@
     owl: {
       label: 'Owl',
       genus: 'Strix',
-      appTitle: 'Owl Sight',
       idle: "This app remaps your camera feed to approximate how an owl's huge, rod‑packed, light‑gathering nocturnal eyes process the same scene.",
       facts: [
         ['Massive light gathering', 'Owl eyes are enormous relative to their skull and rod‑dominant, amplifying dim starlight into a usable image.'],
@@ -538,7 +523,6 @@
     dragonfly: {
       label: 'Dragonfly',
       genus: 'Anisoptera',
-      appTitle: 'Dragonfly Sight',
       idle: "This app remaps your camera feed to approximate how a dragonfly's near‑360° compound eyes, with extreme flicker fusion, process the same scene.",
       facts: [
         ['Compound eyes', 'Tens of thousands of individual facets tile the visual field — rendered here as a dense faceted grid.'],
@@ -550,7 +534,6 @@
     cat: {
       label: 'Cat',
       genus: 'Felis',
-      appTitle: 'Cat Sight',
       idle: "This app remaps your camera feed to approximate how a domestic cat's low‑light‑boosted, blue‑yellow eyes process the same scene.",
       facts: [
         ['Dichromatic colour', 'Cats have two cone types, similar to red‑green colour blindness in people — reds mute toward yellow‑brown.'],
@@ -562,7 +545,6 @@
     dog: {
       label: 'Dog',
       genus: 'Canis',
-      appTitle: 'Dog Sight',
       idle: "This app remaps your camera feed to approximate how a dog's dichromatic, motion‑ and light‑sensitive eyes process the same scene.",
       facts: [
         ['Dichromatic colour', 'Dogs see blues and yellows well but struggle with red‑green distinctions, so reds shift toward dull yellow‑brown here.'],
@@ -574,7 +556,6 @@
     deer: {
       label: 'Deer',
       genus: 'Cervidae',
-      appTitle: 'Deer Sight',
       idle: "This app remaps your camera feed to approximate how a deer's dichromatic, wide‑field, horizontally‑tuned eyes process the same scene.",
       facts: [
         ['Blaze-orange blind spot', 'Deer lack red-sensitive cones, so hunter‑orange reads closer to dull yellow‑grey — reds are pulled down hard here.'],
@@ -586,7 +567,6 @@
     goat: {
       label: 'Goat',
       genus: 'Capra',
-      appTitle: 'Goat Sight',
       idle: "This app remaps your camera feed to approximate how a goat's wide, horizontally‑slitted, panoramic eyes process the same scene.",
       facts: [
         ['Horizontal rectangular pupils', 'A wide, horizontal pupil keeps the ground‑level horizon in sharp focus even while grazing head‑down — echoed by the sharp horizontal band.'],
@@ -598,7 +578,6 @@
     sheep: {
       label: 'Sheep',
       genus: 'Ovis',
-      appTitle: 'Sheep Sight',
       idle: "This app remaps your camera feed to approximate how a sheep's wide, horizontally‑slitted, panoramic dichromatic eyes process the same scene.",
       facts: [
         ['Horizontal rectangular pupils', 'Like goats, sheep keep a wide horizontal strip of the world in focus at once, echoed by the sharp horizontal band here.'],
@@ -632,8 +611,7 @@
     animal = key;
     const info = ANIMALS[key];
     genusLabel.textContent = info.genus;
-    pageTitle.textContent = info.appTitle;
-    document.title = info.appTitle + ' — see through a ' + info.label.toLowerCase() + "'s eye";
+    document.title = 'Anima — see through a ' + info.label.toLowerCase() + "'s eye";
     idleText.textContent = info.idle;
     labelRight.textContent = info.label;
     factsEl.innerHTML = info.facts.map(([t, d]) => `<div class="fact"><b>${t}</b>${d}</div>`).join('');
