@@ -286,6 +286,23 @@
         <option value="crow">Crow</option>
         <option value="panther">Panther</option>
         <option value="spider">Spider</option>
+        <option value="lizard">Lizard</option>
+        <option value="shark">Shark</option>
+        <option value="dolphin">Dolphin</option>
+        <option value="eagle">Eagle</option>
+        <option value="fish">Fish</option>
+        <option value="octopus">Octopus</option>
+        <option value="whale">Whale</option>
+        <option value="monkey">Monkey</option>
+        <option value="snake">Snake</option>
+        <option value="rat">Rat</option>
+        <option value="owl">Owl</option>
+        <option value="dragonfly">Dragonfly</option>
+        <option value="cat">Cat</option>
+        <option value="dog">Dog</option>
+        <option value="deer">Deer</option>
+        <option value="goat">Goat</option>
+        <option value="sheep">Sheep</option>
       </select>
     </div>
   </header>
@@ -384,6 +401,210 @@
         ['Green–UV vision', 'Most spiders lack red‑sensitive receptors, seeing mostly in green and near‑ultraviolet, rendered here as a cool violet‑green tint.'],
         ['Eight simple eyes', 'Not a compound eye — several simple lenses cover different fields, hinted at here by the faceted grid overlay.'],
         ['Blurry periphery', 'Outside the principal gaze, resolution drops sharply, so the frame softens and desaturates toward its edges.'],
+      ],
+    },
+    lizard: {
+      label: 'Lizard',
+      genus: 'Lacertilia',
+      appTitle: 'Lizard Sight',
+      idle: "This app remaps your camera feed to approximate how a diurnal lizard's vivid, UV‑sensitive, tetrachromatic eyes process the same scene.",
+      facts: [
+        ['UV-tetrachromacy', 'Many lizards see into the near‑ultraviolet, useful for reading UV skin patches on rivals and mates — rendered here as a violet‑blue lift.'],
+        ['Vivid colour space', 'Basking, egg‑laying reptiles lean on strong colour discrimination for basking‑spot and prey selection, so hues run saturated.'],
+        ['Tongue-flick reflex', 'Quick prey strikes rely on fast motion detection — sudden movement flashes amber here.'],
+        ['Wide-set eyes', 'Eyes on the sides of the head give broad peripheral coverage, hinted at by the soft edge falloff.'],
+      ],
+    },
+    shark: {
+      label: 'Shark',
+      genus: 'Selachimorpha',
+      appTitle: 'Shark Sight',
+      idle: "This app remaps your camera feed to approximate how a shark's colour‑poor, contrast‑driven, electroreceptive eyes process the same scene.",
+      facts: [
+        ['Cone-monochromats', 'Most sharks appear to have only a single functional cone type — they likely see the world with little to no colour, in shades and contrast.'],
+        ['Blue-green murk', 'Coastal and open water filters out warm wavelengths first, so the remaining light skews blue‑green.'],
+        ['Electroreception', 'The ampullae of Lorenzini sense faint electrical fields from movement — flagged here as a teal pulse on anything that shifts.'],
+        ['Contrast over colour', 'With weak colour vision, sharks likely rely on brightness contrast and silhouette to find prey.'],
+      ],
+    },
+    dolphin: {
+      label: 'Dolphin',
+      genus: 'Delphinus',
+      appTitle: 'Dolphin Sight',
+      idle: "This app remaps your camera feed to approximate how a dolphin's near‑monochromatic eyes, paired with echolocation, process the same scene.",
+      facts: [
+        ['Cone-monochromat', 'Dolphins lost their blue cone over evolutionary time, leaving one cone type — colour vision is very limited, so the image leans toward a single hue.'],
+        ['Echolocation overlay', 'Dolphins "see" as much with sound as with eyes — the faint pulsing rings here stand in for outgoing sonar clicks.'],
+        ['Underwater blue shift', 'Water absorbs red light fastest, so the remaining palette settles into blue‑green.'],
+        ['Monocular habits', 'Each eye can move independently, giving near‑panoramic awareness — softened, low‑vignette edges hint at that spread.'],
+      ],
+    },
+    eagle: {
+      label: 'Eagle',
+      genus: 'Aquila',
+      appTitle: 'Eagle Sight',
+      idle: "This app remaps your camera feed to approximate how an eagle's razor‑sharp, UV‑tinted, tightly foveated eyes process the same scene.",
+      facts: [
+        ['Extreme acuity', 'Eagles resolve detail several times finer than human vision — the centre of frame gets a strong contrast boost to mimic that clarity.'],
+        ['Twin foveae', 'A second, deep fovea per eye gives telephoto-like central sharpness, at the cost of a narrower effective field, hinted by the fast peripheral falloff.'],
+        ['UV sensitivity', 'Some raptors track UV‑reflective prey trails (like vole urine) — rendered as a subtle violet lift.'],
+        ['Prey-glint reflex', 'Fast-moving prey briefly flares white here, echoing an eagle\'s hair‑trigger motion sensitivity.'],
+      ],
+    },
+    fish: {
+      label: 'Fish',
+      genus: 'Actinopterygii',
+      appTitle: 'Fish Sight',
+      idle: "This app remaps your camera feed to approximate how a typical fish's wide‑set, blue‑green‑leaning, underwater‑adapted eyes process the same scene.",
+      facts: [
+        ['Underwater colour loss', 'Water absorbs red wavelengths within metres of the surface, so warm tones fade fast and blue‑green dominates.'],
+        ['Lateral placement', 'Eyes on either side of the head give a wide, low‑vignette field of view rather than a narrow forward cone.'],
+        ['Motion-tuned', 'Detecting a predator\'s approach or prey\'s dart matters more than fine colour — sudden movement is flagged in cyan.'],
+        ['Lens over pupil', 'Fish focus by moving a spherical lens rather than reshaping it, favouring an evenly sharp, low‑contrast image overall.'],
+      ],
+    },
+    octopus: {
+      label: 'Octopus',
+      genus: 'Octopus',
+      appTitle: 'Octopus Sight',
+      idle: "This app remaps your camera feed to approximate how an octopus's colour‑blind eyes, which parse hue through blur instead of cones, process the same scene.",
+      facts: [
+        ['True colourblindness', 'Octopuses have a single photoreceptor type — by conventional colour vision, they see only in shades of grey.'],
+        ['Spectral blur trick', 'A W‑shaped pupil may let them infer colour from how differently wavelengths defocus, hinted at by the faint radial fringe.'],
+        ['Skin-based light sensing', 'Photoreceptor proteins in their skin can sense light directly, layered on top of what the eyes report.'],
+        ['Contrast-first vision', 'With no colour channel to rely on, shape, texture and brightness contrast carry most visual information.'],
+      ],
+    },
+    whale: {
+      label: 'Whale',
+      genus: 'Cetacea',
+      appTitle: 'Whale Sight',
+      idle: "This app remaps your camera feed to approximate how a whale's dim, blue‑shifted, near‑monochromatic eyes, aided by echolocation, process the same scene.",
+      facts: [
+        ['Cone-monochromat', 'Like dolphins, most whales retain a single functional cone type, so the world renders in a narrow band of blues.'],
+        ['Deep-water dimness', 'Little light penetrates to typical diving depths, so contrast and brightness matter far more than colour.'],
+        ['Echolocation pulses', 'Toothed whales build a sound-picture of their surroundings — the slow rings here stand in for that sonar sense.'],
+        ['Vast field of view', 'Eyes set on either side of a huge head give an almost panoramic view, hinted at by the very soft vignette.'],
+      ],
+    },
+    monkey: {
+      label: 'Monkey',
+      genus: 'Cercopithecus',
+      appTitle: 'Monkey Sight',
+      idle: "This app remaps your camera feed to approximate how an Old World monkey's trichromatic, fruit‑tuned eyes process the same scene.",
+      facts: [
+        ['Trichromatic vision', 'Like humans, many monkeys have three cone types — colour discrimination is close to ours, slightly boosted here for reds and greens.'],
+        ['Ripe-fruit detection', 'Red‑green sensitivity is thought to have evolved partly to spot ripe fruit against green foliage.'],
+        ['Sharp central fovea', 'A dense, cone-packed fovea gives crisp central detail, mimicked by the gentle contrast lift at the centre of frame.'],
+        ['Forward-facing eyes', 'Binocular, forward-set eyes prioritise depth judgement over a wide field, so the periphery only softens mildly.'],
+      ],
+    },
+    snake: {
+      label: 'Snake',
+      genus: 'Serpentes',
+      appTitle: 'Snake Sight',
+      idle: "This app remaps your camera feed to approximate how a pit viper's dim visible-light eyes, layered with infrared heat‑sensing, process the same scene.",
+      facts: [
+        ['Infrared pit organs', 'Pit vipers and some boas sense heat directly, building a thermal picture layered over normal sight — rendered as a false‑colour heat wash.'],
+        ['Modest visible vision', 'Many snakes have relatively simple, often dim‑adapted eyes, so the underlying colour image is muted.'],
+        ['Strike-reflex motion', 'A striking response is triggered by sudden nearby movement, flagged here in hot orange‑red.'],
+        ['Dual-sense fusion', 'The brain merges the heat map with the visual scene into one picture — that blend is what the overlay represents.'],
+      ],
+    },
+    rat: {
+      label: 'Rat',
+      genus: 'Rattus',
+      appTitle: 'Rat Sight',
+      idle: "This app remaps your camera feed to approximate how a rat's rod‑dominant, UV‑tinted, wide‑field nocturnal eyes process the same scene.",
+      facts: [
+        ['Rod-dominant retina', 'Nocturnal rodents lean heavily on rod cells for low‑light sensitivity, at the cost of sharpness — shadows lift, detail softens.'],
+        ['UV sensitivity', 'Rats can see near‑ultraviolet, useful for detecting UV‑reflective urine trails — rendered as a faint violet cast.'],
+        ['Near-360° awareness', 'Eyes set far apart give an enormous field of view for predator detection, hinted at by the minimal vignette.'],
+        ['Whisker-first, eyes-second', 'Vision is comparatively low‑acuity — rats lean on whiskers and smell, so the image softens quickly away from centre.'],
+      ],
+    },
+    owl: {
+      label: 'Owl',
+      genus: 'Strix',
+      appTitle: 'Owl Sight',
+      idle: "This app remaps your camera feed to approximate how an owl's huge, rod‑packed, light‑gathering nocturnal eyes process the same scene.",
+      facts: [
+        ['Massive light gathering', 'Owl eyes are enormous relative to their skull and rod‑dominant, amplifying dim starlight into a usable image.'],
+        ['Weak colour vision', 'With few cones, colour discrimination takes a back seat to brightness — hues desaturate here toward grey‑blue.'],
+        ['Tubular, fixed eyes', 'Owl eyes can\'t rotate in their sockets, but a sharp central zone gives precise forward focus, mimicked by the centre contrast boost.'],
+        ['Silent-strike motion sense', 'Tuned to catch the faintest movement of prey in near darkness — flagged here in warm moonlit highlights.'],
+      ],
+    },
+    dragonfly: {
+      label: 'Dragonfly',
+      genus: 'Anisoptera',
+      appTitle: 'Dragonfly Sight',
+      idle: "This app remaps your camera feed to approximate how a dragonfly's near‑360° compound eyes, with extreme flicker fusion, process the same scene.",
+      facts: [
+        ['Compound eyes', 'Tens of thousands of individual facets tile the visual field — rendered here as a dense faceted grid.'],
+        ['Many photoreceptor types', 'Dragonflies carry far more opsin types than humans, including UV — colours run rich and saturated.'],
+        ['Fastest flicker fusion', 'They resolve motion at rates far beyond human perception — even tiny movements trigger a bright magenta flash here.'],
+        ['Near-panoramic view', 'Compound eyes wrap almost fully around the head, so the image barely darkens toward the edges.'],
+      ],
+    },
+    cat: {
+      label: 'Cat',
+      genus: 'Felis',
+      appTitle: 'Cat Sight',
+      idle: "This app remaps your camera feed to approximate how a domestic cat's low‑light‑boosted, blue‑yellow eyes process the same scene.",
+      facts: [
+        ['Dichromatic colour', 'Cats have two cone types, similar to red‑green colour blindness in people — reds mute toward yellow‑brown.'],
+        ['Night-vision boost', 'A rod-rich retina and reflective tapetum lucidum let cats see in roughly a sixth of the light humans need — shadows lift here accordingly.'],
+        ['Vertical-slit pupils', 'Slit pupils give precise control over incoming light and sharp depth cues for pouncing at close range.'],
+        ['Hunter\'s motion sense', 'Small, quick movements are exactly what a cat\'s vision is tuned to catch — flagged in a warm amber flash.'],
+      ],
+    },
+    dog: {
+      label: 'Dog',
+      genus: 'Canis',
+      appTitle: 'Dog Sight',
+      idle: "This app remaps your camera feed to approximate how a dog's dichromatic, motion‑ and light‑sensitive eyes process the same scene.",
+      facts: [
+        ['Dichromatic colour', 'Dogs see blues and yellows well but struggle with red‑green distinctions, so reds shift toward dull yellow‑brown here.'],
+        ['Moderate night vision', 'A rod-rich retina and tapetum lucidum give dogs better‑than‑human low‑light vision, though less extreme than cats.'],
+        ['Motion over detail', 'Dogs detect movement well but have lower visual acuity than humans — fine static detail is de‑emphasised in favour of motion cues.'],
+        ['Scent-assisted vision', 'Vision is only one input among many for a dog — the image here stays comparatively naturalistic, just colour‑ and light‑shifted.'],
+      ],
+    },
+    deer: {
+      label: 'Deer',
+      genus: 'Cervidae',
+      appTitle: 'Deer Sight',
+      idle: "This app remaps your camera feed to approximate how a deer's dichromatic, wide‑field, horizontally‑tuned eyes process the same scene.",
+      facts: [
+        ['Blaze-orange blind spot', 'Deer lack red-sensitive cones, so hunter‑orange reads closer to dull yellow‑grey — reds are pulled down hard here.'],
+        ['Horizontal pupils', 'A rectangular, horizontal pupil keeps a wide horizontal band of the ground‑level world in sharp focus, hinted at by the clearer horizontal stripe.'],
+        ['Near-panoramic field', 'Eyes set on the sides of the head give roughly 300° of coverage for spotting predators — the vignette stays very light.'],
+        ['Dusk-tuned motion sense', 'Most active at dawn and dusk, deer are quick to notice movement in low light, flagged here in bright white.'],
+      ],
+    },
+    goat: {
+      label: 'Goat',
+      genus: 'Capra',
+      appTitle: 'Goat Sight',
+      idle: "This app remaps your camera feed to approximate how a goat's wide, horizontally‑slitted, panoramic eyes process the same scene.",
+      facts: [
+        ['Horizontal rectangular pupils', 'A wide, horizontal pupil keeps the ground‑level horizon in sharp focus even while grazing head‑down — echoed by the sharp horizontal band.'],
+        ['Extreme field of view', 'Goats see roughly 320–340° around themselves, nearly a full circle, hinted at by the very light vignette.'],
+        ['Dichromatic colour', 'Two cone types give goats reasonable but not full colour discrimination, so the palette desaturates slightly.'],
+        ['Predator-scanning reflex', 'Constant peripheral vigilance while grazing means motion anywhere in frame gets flagged in bright white.'],
+      ],
+    },
+    sheep: {
+      label: 'Sheep',
+      genus: 'Ovis',
+      appTitle: 'Sheep Sight',
+      idle: "This app remaps your camera feed to approximate how a sheep's wide, horizontally‑slitted, panoramic dichromatic eyes process the same scene.",
+      facts: [
+        ['Horizontal rectangular pupils', 'Like goats, sheep keep a wide horizontal strip of the world in focus at once, echoed by the sharp horizontal band here.'],
+        ['Very wide field of view', 'Sheep see roughly 270–320° around themselves without turning their heads, hinted at by the minimal vignette.'],
+        ['Dichromatic colour', 'Two cone types give a narrower colour palette than human trichromatic vision, so hues mute slightly.'],
+        ['Flock vigilance', 'As a heavily preyed-upon animal, sheep are quick to flag any movement at the edge of vision, shown in bright white.'],
       ],
     },
   };
@@ -597,11 +818,234 @@
     return newGray;
   }
 
+  // generic, parameterised vision engine — used by all animals added after crow/panther/spider.
+  // cfg fields (all optional): rw/gw/bw channel weights, ampGamma+ampMix (low-light lift),
+  // uv (UV-violet boost), desaturate+desatTintR/G/B (blend toward luminance), tint (full
+  // monochrome tint [r,g,b] weights), thermal (heat-map blend amount), chromaticFringe
+  // (radial pseudo-colour fringe), rings (animated concentric sonar rings), motion
+  // ({threshold,range,color}), centerContrast ({radius,amt} contrast boost near centre),
+  // acuityFall ({start,range,amt} blur/desaturate falloff toward periphery), band
+  // ({start,max,mult} horizontal panoramic sharp-strip dimming), facet (grid-cell divisor),
+  // vignette ({strength,exp}).
+  function applyGenericVision(imageData, prevGrayRef, w, h, cfg, t){
+    const d = imageData.data;
+    const newGray = new Uint8ClampedArray(w*h);
+    const cx = w/2, cy = h/2;
+    const maxDist = Math.sqrt(cx*cx+cy*cy);
+    const block = cfg.facet ? Math.max(4, Math.round(w/cfg.facet)) : 0;
+    const rw = cfg.rw ?? 1, gw = cfg.gw ?? 1, bw = cfg.bw ?? 1;
+
+    for(let i=0, p=0; i<d.length; i+=4, p++){
+      let r = d[i], g = d[i+1], b = d[i+2];
+      const gray = 0.299*r + 0.587*g + 0.114*b;
+      newGray[p] = gray;
+
+      let amp = gray;
+      if(cfg.ampGamma){ amp = Math.pow(gray/255, cfg.ampGamma) * 255; }
+
+      let nr = r*rw, ng = g*gw, nb = b*bw;
+
+      if(cfg.ampGamma){
+        const mix = cfg.ampMix ?? 0.4;
+        nr = nr*(1-mix) + amp*mix;
+        ng = ng*(1-mix) + amp*mix;
+        nb = nb*(1-mix) + amp*mix;
+      }
+
+      if(cfg.uv){
+        const uvBoost = Math.max(0, b - r) * cfg.uv + gray * 0.1;
+        nb = Math.min(255, nb + uvBoost * 0.6);
+        nr = nr + uvBoost * 0.15;
+      }
+
+      if(cfg.desaturate){
+        const s = cfg.desaturate;
+        nr = nr*(1-s) + amp*s*(cfg.desatTintR ?? 1);
+        ng = ng*(1-s) + amp*s*(cfg.desatTintG ?? 1);
+        nb = nb*(1-s) + amp*s*(cfg.desatTintB ?? 1);
+      }
+
+      if(cfg.tint){
+        nr = amp*cfg.tint[0]; ng = amp*cfg.tint[1]; nb = amp*cfg.tint[2];
+      }
+
+      if(cfg.thermal){
+        const tt = gray/255;
+        let hr, hg, hb;
+        if(tt < 0.5){ hr = 0; hg = tt*2*255; hb = 255*(1-tt*2); }
+        else { hr = (tt-0.5)*2*255; hg = 255*(1-(tt-0.5)*2); hb = 0; }
+        const hm = cfg.thermal;
+        nr = nr*(1-hm) + hr*hm;
+        ng = ng*(1-hm) + hg*hm;
+        nb = nb*(1-hm) + hb*hm;
+      }
+
+      const px = p % w, py = (p / w) | 0;
+      const dist = Math.sqrt((px-cx)*(px-cx) + (py-cy)*(py-cy)) / maxDist;
+
+      if(cfg.chromaticFringe){
+        const hue = (dist * cfg.chromaticFringe.freq) % 1;
+        const amt = cfg.chromaticFringe.amt;
+        nr += Math.sin(hue*6.283) * amt;
+        ng += Math.sin(hue*6.283 + 2.094) * amt;
+        nb += Math.sin(hue*6.283 + 4.189) * amt;
+      }
+
+      if(cfg.rings){
+        const ring = Math.sin(dist*cfg.rings.freq*maxDist - t*cfg.rings.speed) * cfg.rings.amp;
+        nr = Math.min(255, nr + ring);
+        ng = Math.min(255, ng + ring);
+        nb = Math.min(255, nb + ring*1.2);
+      }
+
+      if(prevGrayRef && cfg.motion){
+        const diff = Math.abs(gray - prevGrayRef[p]);
+        if(diff > cfg.motion.threshold){
+          const boost = Math.min(1, diff/cfg.motion.range);
+          nr = nr*(1-boost) + cfg.motion.color[0]*boost;
+          ng = ng*(1-boost) + cfg.motion.color[1]*boost;
+          nb = nb*(1-boost) + cfg.motion.color[2]*boost;
+        }
+      }
+
+      if(cfg.centerContrast){
+        const cc = 1 - Math.min(1, dist/cfg.centerContrast.radius);
+        const amt = cc * cfg.centerContrast.amt;
+        nr = 128 + (nr-128)*(1+amt);
+        ng = 128 + (ng-128)*(1+amt);
+        nb = 128 + (nb-128)*(1+amt);
+      }
+
+      if(cfg.acuityFall){
+        const { start, range, amt } = cfg.acuityFall;
+        const fall = dist > start ? Math.min(1, (dist-start)/range) : 0;
+        nr = nr*(1-fall*amt) + gray*(fall*amt);
+        ng = ng*(1-fall*amt*0.7) + gray*(fall*amt*0.7);
+      }
+
+      if(cfg.band){
+        const distY = Math.abs(py-cy) / (h/2);
+        const dim = distY > cfg.band.start ? Math.min(cfg.band.max, (distY-cfg.band.start)*cfg.band.mult) : 0;
+        nr *= (1-dim); ng *= (1-dim); nb *= (1-dim);
+      }
+
+      if(block && (px % block === 0 || py % block === 0)){
+        nr *= 0.82; ng *= 0.82; nb *= 0.82;
+      }
+
+      let vig = 1;
+      if(cfg.vignette){ vig = 1 - Math.pow(dist, cfg.vignette.exp ?? 3) * cfg.vignette.strength; }
+
+      d[i]   = nr * vig;
+      d[i+1] = ng * vig;
+      d[i+2] = nb * vig;
+    }
+    return newGray;
+  }
+
+  const GENERIC_CFG = {
+    lizard: {
+      rw: 1.05, gw: 1.1, bw: 1.2, uv: 0.45,
+      motion: { threshold: 16, range: 55, color: [255, 210, 60] },
+      vignette: { strength: 0.2, exp: 3 },
+    },
+    shark: {
+      rw: 0.9, gw: 1.0, bw: 1.1, desaturate: 0.85, desatTintG: 1.05, desatTintB: 1.15,
+      motion: { threshold: 10, range: 45, color: [0, 255, 220] },
+      vignette: { strength: 0.3, exp: 3 },
+    },
+    dolphin: {
+      tint: [0.65, 1.05, 0.85],
+      rings: { freq: 0.06, speed: 0.003, amp: 16 },
+      vignette: { strength: 0.12, exp: 4 },
+    },
+    eagle: {
+      rw: 1.05, gw: 1.05, bw: 1.0, uv: 0.3,
+      centerContrast: { radius: 0.5, amt: 0.45 },
+      motion: { threshold: 8, range: 40, color: [255, 255, 255] },
+      vignette: { strength: 0.45, exp: 2.2 },
+    },
+    fish: {
+      rw: 0.6, gw: 1.05, bw: 1.25, desaturate: 0.15,
+      motion: { threshold: 14, range: 50, color: [120, 220, 255] },
+      vignette: { strength: 0.15, exp: 4 },
+    },
+    octopus: {
+      desaturate: 1.0, ampGamma: 0.85, ampMix: 0.15,
+      chromaticFringe: { freq: 6, amt: 14 },
+      vignette: { strength: 0.25, exp: 3 },
+    },
+    whale: {
+      tint: [0.55, 0.8, 1.15],
+      rings: { freq: 0.035, speed: 0.0018, amp: 18 },
+      vignette: { strength: 0.1, exp: 4.5 },
+    },
+    monkey: {
+      rw: 1.1, gw: 1.08, bw: 0.95,
+      centerContrast: { radius: 0.6, amt: 0.2 },
+      vignette: { strength: 0.15, exp: 3 },
+    },
+    snake: {
+      desaturate: 0.5, thermal: 0.55, ampGamma: 0.7, ampMix: 0.25,
+      motion: { threshold: 10, range: 40, color: [255, 80, 0] },
+      vignette: { strength: 0.2, exp: 3 },
+    },
+    rat: {
+      ampGamma: 0.5, ampMix: 0.45, desaturate: 0.6, uv: 0.35,
+      acuityFall: { start: 0.15, range: 0.6, amt: 0.6 },
+      motion: { threshold: 9, range: 35, color: [200, 255, 120] },
+      vignette: { strength: 0.1, exp: 4 },
+    },
+    owl: {
+      ampGamma: 0.4, ampMix: 0.5, desaturate: 0.5, desatTintB: 1.1,
+      centerContrast: { radius: 0.45, amt: 0.35 },
+      motion: { threshold: 8, range: 35, color: [255, 240, 180] },
+      vignette: { strength: 0.35, exp: 2.5 },
+    },
+    dragonfly: {
+      rw: 1.05, gw: 1.05, bw: 1.15, uv: 0.4, facet: 100,
+      motion: { threshold: 6, range: 30, color: [255, 60, 220] },
+      vignette: { strength: 0.05, exp: 5 },
+    },
+    cat: {
+      rw: 0.6, gw: 0.95, bw: 1.05, ampGamma: 0.75, ampMix: 0.35, desaturate: 0.35,
+      motion: { threshold: 11, range: 42, color: [255, 225, 120] },
+      vignette: { strength: 0.2, exp: 3 },
+    },
+    dog: {
+      rw: 0.55, gw: 1.0, bw: 1.05, ampGamma: 0.85, ampMix: 0.25, desaturate: 0.25,
+      motion: { threshold: 10, range: 40, color: [255, 235, 150] },
+      vignette: { strength: 0.18, exp: 3 },
+    },
+    deer: {
+      rw: 0.4, gw: 1.05, bw: 1.05, desaturate: 0.2,
+      band: { start: 0.35, max: 0.5, mult: 1.4 },
+      motion: { threshold: 9, range: 35, color: [255, 255, 255] },
+      vignette: { strength: 0.08, exp: 5 },
+    },
+    goat: {
+      desaturate: 0.15,
+      band: { start: 0.3, max: 0.55, mult: 1.5 },
+      motion: { threshold: 10, range: 38, color: [255, 255, 255] },
+      vignette: { strength: 0.05, exp: 5 },
+    },
+    sheep: {
+      rw: 0.7, gw: 1.0, bw: 0.95, desaturate: 0.25,
+      band: { start: 0.32, max: 0.5, mult: 1.35 },
+      motion: { threshold: 10, range: 38, color: [255, 255, 255] },
+      vignette: { strength: 0.06, exp: 5 },
+    },
+  };
+
   const VISION_FILTERS = {
     crow: applyCrowVision,
     panther: applyPantherVision,
     spider: applySpiderVision,
   };
+  Object.keys(GENERIC_CFG).forEach(key => {
+    const cfg = GENERIC_CFG[key];
+    VISION_FILTERS[key] = (imageData, prevGrayRef, w, h, t) => applyGenericVision(imageData, prevGrayRef, w, h, cfg, t);
+  });
 
   let lastMode = null;
   let lastAnimal = null;
@@ -619,17 +1063,19 @@
       ctx.clearRect(0,0,w,h);
       drawCoverFrame(ctx, 0, w);
 
+      const t = performance.now();
+
       if(mode === 'human'){
         // nothing further — raw feed only
       } else if(mode === 'full'){
         const frame = ctx.getImageData(0,0,w,h);
-        prevGray = applyVision(frame, prevGray, w, h);
+        prevGray = applyVision(frame, prevGray, w, h, t);
         ctx.putImageData(frame, 0, 0);
       } else { // split — left half stays human, right half becomes the selected animal's vision
         const half = Math.floor(w/2);
         const rightW = w - half;
         const rightFrame = ctx.getImageData(half, 0, rightW, h);
-        prevGray = applyVision(rightFrame, prevGray, rightW, h);
+        prevGray = applyVision(rightFrame, prevGray, rightW, h, t);
         ctx.putImageData(rightFrame, half, 0);
       }
     }
