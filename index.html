@@ -695,20 +695,33 @@
     targetCtx.beginPath();
     targetCtx.rect(x0, 0, regionW, h);
     targetCtx.clip();
+    targetCtx.lineCap = 'round';
+    // amber reads clearly against these filters' blue/green tints; a dark halo behind every
+    // stroke keeps the rings visible even over bright highlights where amber alone would wash out
     for(let i=0; i<3; i++){
       const phase = ((t*0.00055 + i/3) % 1);
       const r = 14 + phase*maxR;
-      const alpha = (1-phase) * (0.12 + soundVolume*0.6);
-      if(alpha <= 0.01) continue;
+      const alpha = (1-phase) * (0.35 + soundVolume*0.6);
+      if(alpha <= 0.02) continue;
       targetCtx.beginPath();
       targetCtx.arc(originX, cy, r, 0, Math.PI*2);
-      targetCtx.strokeStyle = `rgba(160,225,255,${alpha.toFixed(3)})`;
-      targetCtx.lineWidth = 2;
+      targetCtx.strokeStyle = `rgba(0,0,0,${(alpha*0.6).toFixed(3)})`;
+      targetCtx.lineWidth = 5;
+      targetCtx.stroke();
+      targetCtx.beginPath();
+      targetCtx.arc(originX, cy, r, 0, Math.PI*2);
+      targetCtx.strokeStyle = `rgba(255,200,80,${alpha.toFixed(3)})`;
+      targetCtx.lineWidth = 2.25;
       targetCtx.stroke();
     }
+    const dotR = 5 + soundVolume*8;
     targetCtx.beginPath();
-    targetCtx.arc(originX, cy, 4 + soundVolume*7, 0, Math.PI*2);
-    targetCtx.fillStyle = `rgba(160,225,255,${(0.35 + soundVolume*0.5).toFixed(3)})`;
+    targetCtx.arc(originX, cy, dotR+2.5, 0, Math.PI*2);
+    targetCtx.fillStyle = `rgba(0,0,0,${(0.5 + soundVolume*0.3).toFixed(3)})`;
+    targetCtx.fill();
+    targetCtx.beginPath();
+    targetCtx.arc(originX, cy, dotR, 0, Math.PI*2);
+    targetCtx.fillStyle = `rgba(255,210,110,${(0.8 + soundVolume*0.2).toFixed(3)})`;
     targetCtx.fill();
     targetCtx.restore();
   }
