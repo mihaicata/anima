@@ -337,7 +337,7 @@
       <summary>Why it looks like this</summary>
       <div class="facts" id="facts"></div>
     </details>
-    <div class="hint">Video is processed on‑device only — nothing is uploaded or stored.</div>
+    <div class="hint">Video — and, for echolocating animals, microphone audio — is processed on‑device only. Nothing is uploaded or stored.</div>
   </footer>
 
 </div>
@@ -424,10 +424,10 @@
     dolphin: {
       label: 'Dolphin',
       genus: 'Delphinus',
-      idle: "This app remaps your camera feed to approximate how a dolphin's near‑monochromatic eyes, paired with echolocation, process the same scene.",
+      idle: "This app remaps your camera feed to approximate how a dolphin's near‑monochromatic eyes, paired with echolocation, process the same scene. Uses your microphone to show live sound direction.",
       facts: [
         ['Cone-monochromat', 'Dolphins lost their blue cone over evolutionary time, leaving one cone type — colour vision is very limited, so the image leans toward a single hue.'],
-        ['Echolocation overlay', 'Dolphins "see" as much with sound as with eyes — the faint pulsing rings here stand in for outgoing sonar clicks.'],
+        ['Echolocation, live', 'Dolphins "see" as much with sound as with eyes — this app listens through your microphone and draws real sonar‑like rings that pulse louder and shift toward whichever side is noisier.'],
         ['Underwater blue shift', 'Water absorbs red light fastest, so the remaining palette settles into blue‑green.'],
         ['Monocular habits', 'Each eye can move independently, giving near‑panoramic awareness — softened, low‑vignette edges hint at that spread.'],
       ],
@@ -468,11 +468,11 @@
     whale: {
       label: 'Whale',
       genus: 'Cetacea',
-      idle: "This app remaps your camera feed to approximate how a whale's dim, blue‑shifted, near‑monochromatic eyes, aided by echolocation, process the same scene.",
+      idle: "This app remaps your camera feed to approximate how a whale's dim, blue‑shifted, near‑monochromatic eyes, aided by echolocation, process the same scene. Uses your microphone to show live sound direction.",
       facts: [
         ['Cone-monochromat', 'Like dolphins, most whales retain a single functional cone type, so the world renders in a narrow band of blues.'],
         ['Deep-water dimness', 'Little light penetrates to typical diving depths, so contrast and brightness matter far more than colour.'],
-        ['Echolocation pulses', 'Toothed whales build a sound-picture of their surroundings — the slow rings here stand in for that sonar sense.'],
+        ['Echolocation, live', 'Toothed whales build a sound-picture of their surroundings — this app listens through your microphone and draws slow sonar rings that grow and shift toward whichever side is louder.'],
         ['Vast field of view', 'Eyes set on either side of a huge head give an almost panoramic view, hinted at by the very soft vignette.'],
       ],
     },
@@ -595,6 +595,13 @@
   let prevGray = null; // Uint8ClampedArray for motion detection
   let rafId = null;
 
+  // microphone pipeline — only used by animals whose GENERIC_CFG has sound:true (echolocators)
+  let audioCtx = null;
+  let analyserL = null, analyserR = null;
+  let micRequested = false; // becomes true once we've attempted (successfully or not)
+  let micMediaStream = null;
+  let soundVolume = 0, soundBalance = 0; // smoothed 0..1 and -1(left)..1(right)
+
   function setMode(m){
     mode = m;
     Object.keys(modeBtns).forEach(k => modeBtns[k].classList.toggle('active', k === m));
@@ -643,6 +650,71 @@
 
   startBtn.onclick = startCamera;
   flipBtn.onclick = () => { facing = facing === 'environment' ? 'user' : 'environment'; startCamera(); };
+
+  // acquire a stereo mic feed once, on demand, for echolocating animals (dolphin/whale).
+  // channel balance between the two mics approximates which side a sound is coming from.
+  async function ensureMic(){
+    if(micRequested) return;
+    micRequested = true;
+    try{
+      micMediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 2, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+        video: false
+      });
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioCtx.createMediaStreamSource(micMediaStream);
+      const splitter = audioCtx.createChannelSplitter(2);
+      source.connect(splitter);
+      analyserL = audioCtx.createAnalyser(); analyserL.fftSize = 512;
+      analyserR = audioCtx.createAnalyser(); analyserR.fftSize = 512;
+      splitter.connect(analyserL, 0);
+      splitter.connect(analyserR, 1); // on a mono mic this channel stays silent — balance just settles to 0
+    }catch(err){
+      analyserL = null; analyserR = null; // mic denied/unavailable — filters fall back to non-reactive rings
+    }
+  }
+
+  const soundBufL = new Uint8Array(512), soundBufR = new Uint8Array(512);
+  function updateSound(){
+    analyserL.getByteTimeDomainData(soundBufL);
+    analyserR.getByteTimeDomainData(soundBufR);
+    let sumL = 0, sumR = 0;
+    for(let i=0; i<soundBufL.length; i++){ const v = (soundBufL[i]-128)/128; sumL += v*v; }
+    for(let i=0; i<soundBufR.length; i++){ const v = (soundBufR[i]-128)/128; sumR += v*v; }
+    const rmsL = Math.sqrt(sumL/soundBufL.length), rmsR = Math.sqrt(sumR/soundBufR.length);
+    const vol = Math.min(1, ((rmsL+rmsR)/2) * 4);
+    const bal = (rmsL+rmsR) > 0.004 ? (rmsR-rmsL)/(rmsR+rmsL) : 0;
+    soundVolume += (vol - soundVolume) * 0.25;
+    soundBalance += (bal - soundBalance) * 0.15;
+  }
+
+  // draws expanding rings from wherever the mic balance says the sound is loudest —
+  // a visual stand-in for echolocation / directional hearing, layered on top of the pixel filter
+  function drawSoundWaves(targetCtx, x0, regionW, h, t){
+    const cy = h/2;
+    const originX = x0 + regionW/2 + soundBalance * regionW * 0.42;
+    const maxR = Math.min(regionW, h) * 0.55;
+    targetCtx.save();
+    targetCtx.beginPath();
+    targetCtx.rect(x0, 0, regionW, h);
+    targetCtx.clip();
+    for(let i=0; i<3; i++){
+      const phase = ((t*0.00055 + i/3) % 1);
+      const r = 14 + phase*maxR;
+      const alpha = (1-phase) * (0.12 + soundVolume*0.6);
+      if(alpha <= 0.01) continue;
+      targetCtx.beginPath();
+      targetCtx.arc(originX, cy, r, 0, Math.PI*2);
+      targetCtx.strokeStyle = `rgba(160,225,255,${alpha.toFixed(3)})`;
+      targetCtx.lineWidth = 2;
+      targetCtx.stroke();
+    }
+    targetCtx.beginPath();
+    targetCtx.arc(originX, cy, 4 + soundVolume*7, 0, Math.PI*2);
+    targetCtx.fillStyle = `rgba(160,225,255,${(0.35 + soundVolume*0.5).toFixed(3)})`;
+    targetCtx.fill();
+    targetCtx.restore();
+  }
 
   function resizeCanvas(){
     const rect = stage.getBoundingClientRect();
@@ -805,11 +877,13 @@
   // acuityFall ({start,range,amt} blur/desaturate falloff toward periphery), band
   // ({start,max,mult} horizontal panoramic sharp-strip dimming), facet (grid-cell divisor),
   // vignette ({strength,exp}).
-  function applyGenericVision(imageData, prevGrayRef, w, h, cfg, t){
+  function applyGenericVision(imageData, prevGrayRef, w, h, cfg, t, snd){
     const d = imageData.data;
     const newGray = new Uint8ClampedArray(w*h);
     const cx = w/2, cy = h/2;
     const maxDist = Math.sqrt(cx*cx+cy*cy);
+    // echolocation rings originate biased toward the loudest mic channel
+    const ringCx = cfg.rings && snd ? cx + snd.balance * cx * 0.7 : cx;
     const block = cfg.facet ? Math.max(4, Math.round(w/cfg.facet)) : 0;
     const rw = cfg.rw ?? 1, gw = cfg.gw ?? 1, bw = cfg.bw ?? 1;
 
@@ -870,7 +944,9 @@
       }
 
       if(cfg.rings){
-        const ring = Math.sin(dist*cfg.rings.freq*maxDist - t*cfg.rings.speed) * cfg.rings.amp;
+        const ringDist = Math.sqrt((px-ringCx)*(px-ringCx) + (py-cy)*(py-cy)) / maxDist;
+        const ampScale = snd ? (0.25 + snd.volume * 1.75) : 1;
+        const ring = Math.sin(ringDist*cfg.rings.freq*maxDist - t*cfg.rings.speed) * cfg.rings.amp * ampScale;
         nr = Math.min(255, nr + ring);
         ng = Math.min(255, ng + ring);
         nb = Math.min(255, nb + ring*1.2);
@@ -936,6 +1012,7 @@
       tint: [0.65, 1.05, 0.85],
       rings: { freq: 0.06, speed: 0.003, amp: 16 },
       vignette: { strength: 0.12, exp: 4 },
+      sound: true,
     },
     eagle: {
       rw: 1.05, gw: 1.05, bw: 1.0, uv: 0.3,
@@ -957,6 +1034,7 @@
       tint: [0.55, 0.8, 1.15],
       rings: { freq: 0.035, speed: 0.0018, amp: 18 },
       vignette: { strength: 0.1, exp: 4.5 },
+      sound: true,
     },
     monkey: {
       rw: 1.1, gw: 1.08, bw: 0.95,
@@ -1022,7 +1100,7 @@
   };
   Object.keys(GENERIC_CFG).forEach(key => {
     const cfg = GENERIC_CFG[key];
-    VISION_FILTERS[key] = (imageData, prevGrayRef, w, h, t) => applyGenericVision(imageData, prevGrayRef, w, h, cfg, t);
+    VISION_FILTERS[key] = (imageData, prevGrayRef, w, h, t, snd) => applyGenericVision(imageData, prevGrayRef, w, h, cfg, t, snd);
   });
 
   let lastMode = null;
@@ -1037,6 +1115,12 @@
       if(mode !== lastMode || animal !== lastAnimal){ prevGray = null; lastMode = mode; lastAnimal = animal; }
 
       const applyVision = VISION_FILTERS[animal];
+      const usesSound = !!(GENERIC_CFG[animal] && GENERIC_CFG[animal].sound);
+
+      if(usesSound && !micRequested) ensureMic();
+      if(usesSound && analyserL){ updateSound(); }
+      else { soundVolume = 0; soundBalance = 0; }
+      const snd = usesSound && analyserL ? { volume: soundVolume, balance: soundBalance } : null;
 
       ctx.clearRect(0,0,w,h);
       drawCoverFrame(ctx, 0, w);
@@ -1047,23 +1131,26 @@
         // nothing further — raw feed only
       } else if(mode === 'full'){
         const frame = ctx.getImageData(0,0,w,h);
-        prevGray = applyVision(frame, prevGray, w, h, t);
+        prevGray = applyVision(frame, prevGray, w, h, t, snd);
         ctx.putImageData(frame, 0, 0);
+        if(snd) drawSoundWaves(ctx, 0, w, h, t);
       } else { // split — left half stays human, right half becomes the selected animal's vision
         const half = Math.floor(w/2);
         const rightW = w - half;
         const rightFrame = ctx.getImageData(half, 0, rightW, h);
-        prevGray = applyVision(rightFrame, prevGray, rightW, h, t);
+        prevGray = applyVision(rightFrame, prevGray, rightW, h, t, snd);
         ctx.putImageData(rightFrame, half, 0);
+        if(snd) drawSoundWaves(ctx, half, rightW, h, t);
       }
     }
     rafId = requestAnimationFrame(loop);
   }
 
-  // pause camera when tab hidden to save battery
+  // pause camera and mic when tab hidden, for battery and privacy
   document.addEventListener('visibilitychange', () => {
-    if(document.hidden && stream){ stream.getTracks().forEach(t=>t.enabled=false); }
-    else if(stream){ stream.getTracks().forEach(t=>t.enabled=true); }
+    const on = !document.hidden;
+    if(stream){ stream.getTracks().forEach(t=>t.enabled=on); }
+    if(micMediaStream){ micMediaStream.getTracks().forEach(t=>t.enabled=on); }
   });
 })();
 </script>
