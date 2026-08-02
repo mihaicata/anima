@@ -280,26 +280,40 @@
     <h1>Anima</h1>
     <div class="animal-picker">
       <select id="animalSelect" aria-label="Choose animal">
-        <option value="crow">Crow</option>
-        <option value="panther">Panther</option>
-        <option value="spider">Spider</option>
-        <option value="lizard">Lizard</option>
-        <option value="shark">Shark</option>
-        <option value="dolphin">Dolphin</option>
-        <option value="eagle">Eagle</option>
-        <option value="fish">Fish</option>
-        <option value="octopus">Octopus</option>
-        <option value="whale">Whale</option>
-        <option value="monkey">Monkey</option>
-        <option value="snake">Snake</option>
-        <option value="rat">Rat</option>
-        <option value="owl">Owl</option>
-        <option value="dragonfly">Dragonfly</option>
-        <option value="cat">Cat</option>
-        <option value="dog">Dog</option>
-        <option value="deer">Deer</option>
-        <option value="goat">Goat</option>
-        <option value="sheep">Sheep</option>
+        <optgroup label="Mammals">
+          <option value="bat">Bat</option>
+          <option value="bull">Bull</option>
+          <option value="cat">Cat</option>
+          <option value="deer">Deer</option>
+          <option value="dog">Dog</option>
+          <option value="dolphin">Dolphin</option>
+          <option value="goat">Goat</option>
+          <option value="monkey">Monkey</option>
+          <option value="panther">Panther</option>
+          <option value="rat">Rat</option>
+          <option value="sheep">Sheep</option>
+          <option value="whale">Whale</option>
+        </optgroup>
+        <optgroup label="Birds">
+          <option value="crow">Crow</option>
+          <option value="eagle">Eagle</option>
+          <option value="hawk">Hawk</option>
+          <option value="owl">Owl</option>
+        </optgroup>
+        <optgroup label="Reptiles">
+          <option value="komodo">Komodo Dragon</option>
+          <option value="lizard">Lizard</option>
+          <option value="snake">Snake</option>
+        </optgroup>
+        <optgroup label="Fish">
+          <option value="fish">Fish</option>
+          <option value="shark">Shark</option>
+        </optgroup>
+        <optgroup label="Invertebrates">
+          <option value="dragonfly">Dragonfly</option>
+          <option value="octopus">Octopus</option>
+          <option value="spider">Spider</option>
+        </optgroup>
       </select>
     </div>
   </header>
@@ -581,6 +595,50 @@
         ['Very wide field of view', 'Sheep see roughly 270–320° around themselves without turning their heads, hinted at by the minimal vignette.'],
         ['Dichromatic colour', 'Two cone types give a narrower colour palette than human trichromatic vision, so hues mute slightly.'],
         ['Flock vigilance', 'As a heavily preyed-upon animal, sheep are quick to flag any movement at the edge of vision, shown in bright white.'],
+      ],
+    },
+    bat: {
+      label: 'Bat',
+      genus: 'Myotis',
+      idle: "This app remaps your camera feed to approximate how a bat's dim, rod‑dominant eyes, guided by echolocation, process the same scene. Uses your microphone to show live sound direction.",
+      facts: [
+        ['Echolocation, live', 'Most bats "see" their surroundings largely through ultrasonic clicks — this app listens through your microphone and draws sonar‑like rings that pulse and shift toward whichever side is louder.'],
+        ['Rod-dominant eyes', 'Active in near‑total darkness, bats lean on a rod‑rich retina for basic shape and motion — the image brightens in shadow and loses colour.'],
+        ['Wide sonar cone', 'Echolocating bats sweep a broad forward cone of ultrasonic pulses many times a second, building a picture of obstacles and prey from the returning echoes.'],
+        ['Insect-strike reflex', 'Chasing fast, erratic insects mid‑flight rewards a hair‑trigger motion sense, flagged here in a warm flash.'],
+      ],
+    },
+    bull: {
+      label: 'Bull',
+      genus: 'Bos',
+      idle: "This app remaps your camera feed to approximate how a bull's wide‑set, horizontally‑pupilled, dichromatic eyes process the same scene.",
+      facts: [
+        ['Not triggered by red', "Cattle lack red‑sensitive cones — it's motion, not the colour of a cape, that provokes a charge. Reds mute toward yellow‑brown here."],
+        ['Horizontal pupils', 'A wide, horizontal pupil keeps the grazing‑height horizon in sharp focus, echoed by the sharp horizontal band.'],
+        ['Near-360° watch', 'Eyes on the sides of a large head give roughly 300° of coverage for spotting threats while grazing, hinted at by the very light vignette.'],
+        ['Dichromatic colour', 'Two cone types give blue‑yellow discrimination but little red‑green — similar to red‑green colour blindness in people.'],
+      ],
+    },
+    komodo: {
+      label: 'Komodo Dragon',
+      genus: 'Varanus',
+      idle: "This app remaps your camera feed to approximate how a Komodo dragon's sharp, motion‑ and scent‑tuned monitor‑lizard eyes process the same scene.",
+      facts: [
+        ['Keen daytime vision', 'As an active diurnal hunter, the Komodo dragon has sharper visual acuity than most reptiles, mimicked here with a contrast boost toward the centre of frame.'],
+        ['Tongue over eyes', "A constantly flicking forked tongue samples airborne scent via the Jacobson's organ, often building a more useful map than sight — flagged here as a warm flare on movement."],
+        ['Reasonable colour vision', 'Monitor lizards are thought to have decent colour discrimination by day, but like most reptiles, weaker vision after dark.'],
+        ['Ambush patience, sudden strike', 'Long stillness followed by a sudden lunging bite rewards strong sensitivity to nearby motion.'],
+      ],
+    },
+    hawk: {
+      label: 'Hawk',
+      genus: 'Buteo',
+      idle: "This app remaps your camera feed to approximate how a hawk's razor‑fast, tightly focused, UV‑tinted eyes process the same scene.",
+      facts: [
+        ['Blistering reaction time', 'Hawks track and intercept fast, erratically moving prey — even the faintest flicker of movement is flagged here in bright white.'],
+        ['Pinpoint central focus', "A dense, high‑acuity fovea locks onto a target during a dive, echoed by the tight, strong contrast boost at the centre of frame."],
+        ['UV sensitivity', 'Like many raptors, hawks likely see into the near‑ultraviolet, useful for tracking UV‑reflective prey signs — rendered as a faint violet lift.'],
+        ['Narrow but intense field', 'Visual attention narrows sharply away from the point of focus during a stoop, hinted at by the fast peripheral darkening.'],
       ],
     },
   };
@@ -1100,6 +1158,31 @@
       band: { start: 0.32, max: 0.5, mult: 1.35 },
       motion: { threshold: 10, range: 38, color: [255, 255, 255] },
       vignette: { strength: 0.06, exp: 5 },
+    },
+    bat: {
+      ampGamma: 0.45, ampMix: 0.5, desaturate: 0.55, desatTintB: 1.05,
+      rings: { freq: 0.09, speed: 0.006, amp: 14 },
+      motion: { threshold: 7, range: 32, color: [255, 235, 150] },
+      vignette: { strength: 0.15, exp: 3.5 },
+      sound: true,
+    },
+    bull: {
+      rw: 0.55, gw: 1.0, bw: 1.0, desaturate: 0.25,
+      band: { start: 0.34, max: 0.5, mult: 1.4 },
+      motion: { threshold: 10, range: 38, color: [255, 255, 255] },
+      vignette: { strength: 0.08, exp: 5 },
+    },
+    komodo: {
+      rw: 1.0, gw: 1.05, bw: 0.95, uv: 0.15,
+      centerContrast: { radius: 0.5, amt: 0.3 },
+      motion: { threshold: 9, range: 40, color: [255, 140, 60] },
+      vignette: { strength: 0.22, exp: 3 },
+    },
+    hawk: {
+      rw: 1.05, gw: 1.05, bw: 1.0, uv: 0.25,
+      centerContrast: { radius: 0.4, amt: 0.5 },
+      motion: { threshold: 5, range: 26, color: [255, 255, 255] },
+      vignette: { strength: 0.4, exp: 2.4 },
     },
   };
 
