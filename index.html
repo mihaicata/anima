@@ -290,6 +290,7 @@
           <option value="goat">Goat</option>
           <option value="monkey">Monkey</option>
           <option value="panther">Panther</option>
+          <option value="platypus">Platypus</option>
           <option value="rat">Rat</option>
           <option value="sheep">Sheep</option>
           <option value="whale">Whale</option>
@@ -301,11 +302,13 @@
           <option value="owl">Owl</option>
         </optgroup>
         <optgroup label="Reptiles">
+          <option value="chameleon">Chameleon</option>
           <option value="komodo">Komodo Dragon</option>
           <option value="lizard">Lizard</option>
           <option value="snake">Snake</option>
         </optgroup>
         <optgroup label="Fish">
+          <option value="eel">Eel</option>
           <option value="fish">Fish</option>
           <option value="shark">Shark</option>
         </optgroup>
@@ -639,6 +642,39 @@
         ['Pinpoint central focus', "A dense, high‑acuity fovea locks onto a target during a dive, echoed by the tight, strong contrast boost at the centre of frame."],
         ['UV sensitivity', 'Like many raptors, hawks likely see into the near‑ultraviolet, useful for tracking UV‑reflective prey signs — rendered as a faint violet lift.'],
         ['Narrow but intense field', 'Visual attention narrows sharply away from the point of focus during a stoop, hinted at by the fast peripheral darkening.'],
+      ],
+    },
+    platypus: {
+      label: 'Platypus',
+      genus: 'Ornithorhynchus',
+      idle: "This app remaps your camera feed to approximate how a platypus forages — eyes, ears and nostrils shut underwater, relying on electroreception in its bill instead of sight.",
+      facts: [
+        ['Eyes shut underwater', 'A platypus closes its eyes, ears and nostrils the moment it dives, so normal vision effectively switches off — echoed here by the heavy peripheral darkening.'],
+        ['Electroreception', "Thousands of electroreceptors in its bill detect the faint electrical field of a shrimp's muscle twitch — flagged here as a sharp electric‑blue flash on any movement."],
+        ['Weak colour vision', 'Above water a platypus sees reasonably well, but colour discrimination is limited — muted and desaturated here to match.'],
+        ['Mechanoreception too', 'The bill also senses tiny water‑pressure changes from movement, doubling up with electroreception to build a picture of nearby prey without any light at all.'],
+      ],
+    },
+    eel: {
+      label: 'Eel',
+      genus: 'Anguilla',
+      idle: "This app remaps your camera feed to approximate how a freshwater eel's small, dim‑adapted eyes — backed by an extraordinary sense of smell — process the same scene.",
+      facts: [
+        ['Small, dim-adapted eyes', 'Eels forage in murky water and near‑darkness, leaning on a low‑light‑boosted, blue‑leaning retina rather than sharp colour vision.'],
+        ['World-class sense of smell', "An eel's olfactory sense is thought to rival a dog's — the faint colour fringe here stands in for a scent trail layered over sight."],
+        ['Eyes upgrade for the ocean', 'Migrating eels enlarge their eyes and shift them toward blue‑light sensitivity before their long journey out to deep ocean spawning grounds.'],
+        ['Lateral line too', 'Despite the snake‑like body, eels are true fish with a lateral line, sensing nearby water movement independent of sight.'],
+      ],
+    },
+    chameleon: {
+      label: 'Chameleon',
+      genus: 'Chamaeleo',
+      idle: "This app remaps your camera feed to approximate how a chameleon's independently swivelling, telephoto‑focused eyes process the same scene.",
+      facts: [
+        ['Independent eye turrets', 'Each eye rotates almost 180° on its own, scanning separately for near‑360° awareness — echoed by the very light vignette that keeps the whole frame visible.'],
+        ['Telephoto tongue-strike focus', 'Before striking, both eyes lock onto the same point for precise distance judgement — mimicked by the sharp contrast boost at the centre of frame.'],
+        ['Strong colour vision', "Chameleons see colour well, including into the UV, useful for reading a rival's skin display — rendered here as slightly boosted, vivid hues."],
+        ['Fast lock-on reflex', 'Once prey is spotted, the tongue-strike is triggered almost instantly — sudden movement flashes green here.'],
       ],
     },
   };
@@ -1183,6 +1219,22 @@
       centerContrast: { radius: 0.4, amt: 0.5 },
       motion: { threshold: 5, range: 26, color: [255, 255, 255] },
       vignette: { strength: 0.4, exp: 2.4 },
+    },
+    platypus: {
+      desaturate: 0.75, ampGamma: 0.8, ampMix: 0.2,
+      motion: { threshold: 6, range: 26, color: [80, 200, 255] },
+      vignette: { strength: 0.4, exp: 2.5 },
+    },
+    eel: {
+      ampGamma: 0.6, ampMix: 0.35, desaturate: 0.45, desatTintB: 1.15,
+      chromaticFringe: { freq: 5, amt: 10 },
+      vignette: { strength: 0.25, exp: 3 },
+    },
+    chameleon: {
+      rw: 1.05, gw: 1.1, bw: 1.05, uv: 0.35,
+      centerContrast: { radius: 0.35, amt: 0.55 },
+      motion: { threshold: 9, range: 38, color: [100, 220, 120] },
+      vignette: { strength: 0.05, exp: 5 },
     },
   };
 
