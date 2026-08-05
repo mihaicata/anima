@@ -351,7 +351,7 @@
       <summary>Why it looks like this</summary>
       <div class="facts" id="facts"></div>
     </details>
-    <div class="hint">Video — and, for echolocating animals, microphone audio — is processed on‑device only. Nothing is uploaded or stored.</div>
+    <div class="hint">Video, microphone audio (for echolocating animals) and face tracking (for the mouth overlay) are all processed on‑device only. Opening the camera downloads a small face‑tracking model from Google's MediaPipe CDN; nothing about you is ever uploaded or stored.</div>
   </footer>
 
 </div>
@@ -701,6 +701,11 @@
   let micMediaStream = null;
   let soundVolume = 0, soundBalance = 0; // smoothed 0..1 and -1(left)..1(right)
 
+  // face/mouth tracking — lazily loaded via MediaPipe from a CDN once the camera opens
+  let faceLandmarker = null;
+  let faceLandmarkerRequested = false;
+  let mouthSmooth = null; // {cx, cy, width, openness} in canvas pixel space, smoothed frame-to-frame
+
   function setMode(m){
     mode = m;
     Object.keys(modeBtns).forEach(k => modeBtns[k].classList.toggle('active', k === m));
@@ -742,6 +747,7 @@
       resizeCanvas();
       prevGray = null;
       if(!rafId) loop();
+      ensureFaceLandmarker(); // fire-and-forget — mouth overlay activates once it resolves
     }catch(err){
       idle.querySelector('p').textContent = 'Camera access was blocked or unavailable: ' + err.message;
     }
@@ -749,6 +755,36 @@
 
   startBtn.onclick = startCamera;
   flipBtn.onclick = () => { facing = facing === 'environment' ? 'user' : 'environment'; startCamera(); };
+
+  // loads Google's MediaPipe Face Landmarker (WASM + model, fetched from its CDN) once, lazily,
+  // so the mouth overlay can track the real position/openness of the user's mouth. Runs entirely
+  // on-device once loaded — nothing about the video is ever sent anywhere. Imported dynamically
+  // (rather than a top-level `import`) so that if the CDN is unreachable, only the mouth overlay
+  // is unavailable — the rest of the app (which doesn't depend on it) still works fine.
+  async function ensureFaceLandmarker(){
+    if(faceLandmarkerRequested) return;
+    faceLandmarkerRequested = true;
+    const modelUrl = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+    try{
+      const { FaceLandmarker, FilesetResolver } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest');
+      const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm');
+      try{
+        faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+          baseOptions: { modelAssetPath: modelUrl, delegate: 'GPU' },
+          runningMode: 'VIDEO',
+          numFaces: 1,
+        });
+      }catch(gpuErr){
+        faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+          baseOptions: { modelAssetPath: modelUrl, delegate: 'CPU' },
+          runningMode: 'VIDEO',
+          numFaces: 1,
+        });
+      }
+    }catch(err){
+      faceLandmarker = null; // no mouth overlay this session — vision filters are unaffected
+    }
+  }
 
   // acquire a stereo mic feed once, on demand, for echolocating animals (dolphin/whale).
   // channel balance between the two mics approximates which side a sound is coming from.
@@ -828,6 +864,128 @@
     targetCtx.restore();
   }
 
+  // which procedural mouth shape each animal uses — one style per taxonomic group,
+  // matching the dropdown's optgroups, rather than bespoke art per animal
+  const ANIMAL_GROUP = {
+    bat: 'mammal', bull: 'mammal', cat: 'mammal', deer: 'mammal', dog: 'mammal', dolphin: 'mammal',
+    goat: 'mammal', monkey: 'mammal', panther: 'mammal', platypus: 'mammal', rat: 'mammal', sheep: 'mammal', whale: 'mammal',
+    crow: 'bird', eagle: 'bird', hawk: 'bird', owl: 'bird',
+    chameleon: 'reptile', komodo: 'reptile', lizard: 'reptile', snake: 'reptile',
+    eel: 'fish', fish: 'fish', shark: 'fish',
+    dragonfly: 'invertebrate', octopus: 'invertebrate', spider: 'invertebrate',
+  };
+
+  function fillStroke(ctx, fill, stroke, lw){
+    ctx.fillStyle = fill; ctx.fill();
+    ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke();
+  }
+  function almondPath(ctx, cx, cy, hw, hh){
+    ctx.beginPath();
+    ctx.moveTo(cx-hw, cy);
+    ctx.quadraticCurveTo(cx, cy-hh, cx+hw, cy);
+    ctx.quadraticCurveTo(cx, cy+hh, cx-hw, cy);
+    ctx.closePath();
+  }
+
+  function drawBeak(ctx, cx, cy, width, openness){
+    const hw = width*0.42, hh = width*(0.045+openness*0.34);
+    almondPath(ctx, cx, cy, hw, hh);
+    fillStroke(ctx, 'rgba(255,196,90,0.88)', 'rgba(35,20,4,0.8)', Math.max(1.2, width*0.035));
+    ctx.beginPath();
+    ctx.moveTo(cx+hw*0.55, cy-hh*0.55);
+    ctx.lineTo(cx+hw*1.5, cy);
+    ctx.lineTo(cx+hw*0.55, cy+hh*0.55);
+    ctx.closePath();
+    fillStroke(ctx, 'rgba(230,170,60,0.9)', 'rgba(35,20,4,0.8)', Math.max(1, width*0.025));
+  }
+
+  function drawMuzzle(ctx, cx, cy, width, openness){
+    const hw = width*0.4, hh = width*(0.05+openness*0.3);
+    almondPath(ctx, cx, cy, hw, hh);
+    fillStroke(ctx, 'rgba(150,90,80,0.55)', 'rgba(40,15,10,0.65)', Math.max(1.2, width*0.03));
+    ctx.beginPath();
+    ctx.arc(cx-hw*0.28, cy-hh-width*0.06, Math.max(1.5, width*0.035), 0, Math.PI*2);
+    ctx.arc(cx+hw*0.28, cy-hh-width*0.06, Math.max(1.5, width*0.035), 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(30,15,10,0.7)';
+    ctx.fill();
+  }
+
+  function drawJaw(ctx, cx, cy, width, openness){
+    const hw = width*0.5, hh = width*(0.04+openness*0.42);
+    almondPath(ctx, cx, cy, hw, hh);
+    fillStroke(ctx, 'rgba(120,150,80,0.5)', 'rgba(20,25,10,0.75)', Math.max(1.2, width*0.03));
+    const teeth = 7;
+    ctx.beginPath();
+    for(let i=1; i<teeth; i++){
+      const nx = -1 + 2*i/teeth;
+      const tx = cx + nx*hw;
+      const edgeY = cy - hh*Math.sqrt(Math.max(0, 1-nx*nx));
+      ctx.moveTo(tx, edgeY);
+      ctx.lineTo(tx, edgeY + width*0.05);
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth = Math.max(1, width*0.02);
+    ctx.stroke();
+  }
+
+  function drawFishMouth(ctx, cx, cy, width, openness){
+    const r = width*(0.1+openness*0.22);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    fillStroke(ctx, 'rgba(190,225,255,0.55)', 'rgba(20,40,55,0.7)', Math.max(1.2, width*0.03));
+    ctx.beginPath();
+    ctx.moveTo(cx-r*0.6, cy+r*0.8);
+    ctx.quadraticCurveTo(cx-r*0.9, cy+r*1.6, cx-r*0.5, cy+r*2.1);
+    ctx.moveTo(cx+r*0.6, cy+r*0.8);
+    ctx.quadraticCurveTo(cx+r*0.9, cy+r*1.6, cx+r*0.5, cy+r*2.1);
+    ctx.strokeStyle = 'rgba(190,225,255,0.5)';
+    ctx.lineWidth = Math.max(1, width*0.015);
+    ctx.stroke();
+  }
+
+  function drawMandibles(ctx, cx, cy, width, openness){
+    const hw = width*0.22, hh = width*(0.03+openness*0.16);
+    almondPath(ctx, cx, cy, hw, hh);
+    fillStroke(ctx, 'rgba(60,30,70,0.6)', 'rgba(10,5,15,0.75)', Math.max(1, width*0.025));
+    const pincerLen = width*0.3;
+    const spreadAngle = 0.25 + openness*0.55;
+    [-1, 1].forEach(side => {
+      const baseX = cx + side*hw, baseY = cy;
+      const dirX = side*Math.cos(spreadAngle), dirY = -Math.sin(spreadAngle);
+      ctx.beginPath();
+      ctx.moveTo(baseX, baseY);
+      ctx.quadraticCurveTo(baseX + dirX*pincerLen*0.6, baseY + dirY*pincerLen*0.6 - width*0.05, baseX + dirX*pincerLen, baseY + dirY*pincerLen);
+      ctx.lineWidth = Math.max(1.5, width*0.04);
+      ctx.strokeStyle = 'rgba(30,15,35,0.85)';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    });
+  }
+
+  const MOUTH_SHAPES = { bird: drawBeak, mammal: drawMuzzle, reptile: drawJaw, fish: drawFishMouth, invertebrate: drawMandibles };
+
+  // draws the tracked-mouth overlay for the current animal, clipped to its display region
+  function drawAnimalMouth(targetCtx, x0, regionW, h, m, animalKey){
+    if(!m) return;
+    const drawFn = MOUTH_SHAPES[ANIMAL_GROUP[animalKey]];
+    if(!drawFn) return;
+    targetCtx.save();
+    targetCtx.beginPath();
+    targetCtx.rect(x0, 0, regionW, h);
+    targetCtx.clip();
+    drawFn(targetCtx, m.cx, m.cy, m.width, m.openness);
+    targetCtx.restore();
+  }
+
+  function lerpMouth(a, b, amt){
+    return {
+      cx: a.cx + (b.cx-a.cx)*amt,
+      cy: a.cy + (b.cy-a.cy)*amt,
+      width: a.width + (b.width-a.width)*amt,
+      openness: a.openness + (b.openness-a.openness)*amt,
+    };
+  }
+
   function resizeCanvas(){
     const rect = stage.getBoundingClientRect();
     canvas.width = rect.width * (window.devicePixelRatio > 1 ? 1.2 : 1);
@@ -846,9 +1004,42 @@
     targetCtx.drawImage(video, sx, sy, sw, sh, dx, 0, dw, ch);
   }
 
+  // shared "film look" pass, applied as the last step of every vision filter: soft-clips
+  // highlights instead of hard-clipping them (like real film/sensor response), adds subtle
+  // sensor-style grain, and a touch of radial chromatic aberration toward the edges (real
+  // camera lenses separate colour channels off-axis) — this is what makes the filters read as
+  // photographic footage rather than a flat colour-shifted overlay
+  const FILM_ABERRATION_PX = 2.6;
+  const FILM_GRAIN = 5;
+  function filmicRolloff(v){
+    if(v <= 200) return v;
+    const excess = (v-200)/55;
+    return 200 + 55*(excess/(1+excess));
+  }
+  function applyFilmLook(d, src, i, w, h, px, py, cx, cy, dist, nr, ng, nb){
+    const dx = px-cx, dy = py-cy;
+    const r2 = dx*dx+dy*dy;
+    const ab = dist*dist*FILM_ABERRATION_PX;
+    if(ab > 0.15 && r2 > 4){
+      const invLen = ab/Math.sqrt(r2);
+      const rx = Math.min(w-1, Math.max(0, Math.round(px+dx*invLen)));
+      const ry = Math.min(h-1, Math.max(0, Math.round(py+dy*invLen)));
+      const bx = Math.min(w-1, Math.max(0, Math.round(px-dx*invLen)));
+      const by = Math.min(h-1, Math.max(0, Math.round(py-dy*invLen)));
+      const ri = (ry*w+rx)*4, bi = (by*w+bx)*4;
+      nr = nr*0.65 + src[ri]*0.35;
+      nb = nb*0.65 + src[bi+2]*0.35;
+    }
+    nr = filmicRolloff(nr); ng = filmicRolloff(ng); nb = filmicRolloff(nb);
+    d[i]   = nr + (Math.random()-0.5)*FILM_GRAIN;
+    d[i+1] = ng + (Math.random()-0.5)*FILM_GRAIN;
+    d[i+2] = nb + (Math.random()-0.5)*FILM_GRAIN;
+  }
+
   // crow: tetrachromatic / UV-lean colour remap + flicker-fusion motion highlight
   function applyCrowVision(imageData, prevGrayRef, w, h){
     const d = imageData.data;
+    const src = d.slice();
     const newGray = new Uint8ClampedArray(w*h);
     const cx = w/2, cy = h/2;
     const maxDist = Math.sqrt(cx*cx+cy*cy);
@@ -881,9 +1072,7 @@
       const dist = Math.sqrt((px-cx)*(px-cx) + (py-cy)*(py-cy)) / maxDist;
       const vig = 1 - Math.pow(dist, 3) * 0.35;
 
-      d[i]   = nr * vig;
-      d[i+1] = ng * vig;
-      d[i+2] = nb * vig;
+      applyFilmLook(d, src, i, w, h, px, py, cx, cy, dist, nr*vig, ng*vig, nb*vig);
     }
     return newGray;
   }
@@ -891,6 +1080,7 @@
   // panther: rod-dominant low-light amplification, dichromatic desaturation, tapetum glow
   function applyPantherVision(imageData, prevGrayRef, w, h){
     const d = imageData.data;
+    const src = d.slice();
     const newGray = new Uint8ClampedArray(w*h);
     const cx = w/2, cy = h/2;
     const maxDist = Math.sqrt(cx*cx+cy*cy);
@@ -931,9 +1121,7 @@
       const dist = Math.sqrt((px-cx)*(px-cx) + (py-cy)*(py-cy)) / maxDist;
       const vig = 1 - Math.pow(dist, 3) * 0.25;
 
-      d[i]   = nr * vig;
-      d[i+1] = ng * vig;
-      d[i+2] = nb * vig;
+      applyFilmLook(d, src, i, w, h, px, py, cx, cy, dist, nr*vig, ng*vig, nb*vig);
     }
     return newGray;
   }
@@ -941,6 +1129,7 @@
   // spider: green/UV-forward dichromacy, sharp foveal centre, faceted-eye grid, blurry periphery
   function applySpiderVision(imageData, prevGrayRef, w, h){
     const d = imageData.data;
+    const src = d.slice();
     const newGray = new Uint8ClampedArray(w*h);
     const cx = w/2, cy = h/2;
     const maxDist = Math.sqrt(cx*cx+cy*cy);
@@ -973,9 +1162,7 @@
 
       const vig = 1 - Math.pow(dist, 3) * 0.4;
 
-      d[i]   = nr * vig;
-      d[i+1] = ng * vig;
-      d[i+2] = nb * vig;
+      applyFilmLook(d, src, i, w, h, px, py, cx, cy, dist, nr*vig, ng*vig, nb*vig);
     }
     return newGray;
   }
@@ -991,6 +1178,7 @@
   // vignette ({strength,exp}).
   function applyGenericVision(imageData, prevGrayRef, w, h, cfg, t, snd){
     const d = imageData.data;
+    const src = d.slice();
     const newGray = new Uint8ClampedArray(w*h);
     const cx = w/2, cy = h/2;
     const maxDist = Math.sqrt(cx*cx+cy*cy);
@@ -1102,9 +1290,7 @@
       let vig = 1;
       if(cfg.vignette){ vig = 1 - Math.pow(dist, cfg.vignette.exp ?? 3) * cfg.vignette.strength; }
 
-      d[i]   = nr * vig;
-      d[i+1] = ng * vig;
-      d[i+2] = nb * vig;
+      applyFilmLook(d, src, i, w, h, px, py, cx, cy, dist, nr*vig, ng*vig, nb*vig);
     }
     return newGray;
   }
@@ -1298,16 +1484,41 @@
 
       const t = performance.now();
 
+      // track the real mouth (corners 61/291, inner lip 13/14 in MediaPipe's face mesh) so the
+      // animal mouth overlay can follow its position/openness — skipped in human mode, where
+      // nothing is drawn on top anyway
+      let mouthState = null;
+      if(mode !== 'human' && faceLandmarker){
+        try{
+          const result = faceLandmarker.detectForVideo(video, t);
+          const lm = result.faceLandmarks && result.faceLandmarks[0];
+          if(lm){
+            const scale = Math.max(w/video.videoWidth, h/video.videoHeight);
+            const sw = w/scale, sh = h/scale, sx = (video.videoWidth-sw)/2, sy = (video.videoHeight-sh)/2;
+            const toCanvas = pt => ({ x: (pt.x*video.videoWidth-sx)*scale, y: (pt.y*video.videoHeight-sy)*scale });
+            const L = toCanvas(lm[61]), R = toCanvas(lm[291]), U = toCanvas(lm[13]), D = toCanvas(lm[14]);
+            const cx = (L.x+R.x+U.x+D.x)/4, cy = (L.y+R.y+U.y+D.y)/4;
+            const mw = Math.hypot(R.x-L.x, R.y-L.y);
+            const gap = Math.hypot(D.x-U.x, D.y-U.y);
+            const openness = Math.max(0, Math.min(1.3, (gap/Math.max(1,mw))*1.8));
+            mouthState = { cx, cy, width: mw, openness };
+          }
+        }catch(err){ /* detector hiccup — just skip this frame's overlay */ }
+      }
+      mouthSmooth = mouthState ? (mouthSmooth ? lerpMouth(mouthSmooth, mouthState, 0.35) : mouthState) : null;
+
       if(mode === 'human'){
         // nothing further — raw feed only
       } else if(mode === 'full'){
         processRegion(applyVision, 0, w, h, t, snd);
         if(snd) drawSoundWaves(ctx, 0, w, h, t);
+        drawAnimalMouth(ctx, 0, w, h, mouthSmooth, animal);
       } else { // split — left half stays human, right half becomes the selected animal's vision
         const half = Math.floor(w/2);
         const rightW = w - half;
         processRegion(applyVision, half, rightW, h, t, snd);
         if(snd) drawSoundWaves(ctx, half, rightW, h, t);
+        drawAnimalMouth(ctx, half, rightW, h, mouthSmooth, animal);
       }
     }
     rafId = requestAnimationFrame(loop);
